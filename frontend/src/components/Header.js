@@ -3,11 +3,10 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import ThemeToggle from "./ThemeToggle";
 import "./Header.css";
-import profilesvg from "../img/profile.svg";
 import homeIcon from "../img/home-button.png";
 
 const Header = () => {
-  const { user, logout, isAuthenticated, isAdmin } = useAuth();
+  const { logout, isAuthenticated, isAdmin } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();

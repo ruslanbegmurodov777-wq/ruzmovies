@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { useStarred } from "../contexts/StarredContext";
 import api from "../utils/api"; // Import the configured api instance

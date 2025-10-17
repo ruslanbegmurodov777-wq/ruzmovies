@@ -22,15 +22,12 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [token, setToken] = useState(localStorage.getItem("token"));
 
-  // Set axios default header if token exists
-  useEffect(() => {
-    if (token) {
-      api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-      fetchUser();
-    } else {
-      setLoading(false);
-    }
-  }, [token]);
+  const logout = useCallback(() => {
+    localStorage.removeItem("token");
+    setToken(null);
+    setUser(null);
+    delete api.defaults.headers.common["Authorization"];
+  }, []);
 
   const fetchUser = useCallback(async () => {
     try {
@@ -42,7 +39,17 @@ export const AuthProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [logout]);
+
+  // Set axios default header if token exists
+  useEffect(() => {
+    if (token) {
+      api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+      fetchUser();
+    } else {
+      setLoading(false);
+    }
+  }, [token, fetchUser]);
 
   const login = useCallback(
     async (email, password) => {
@@ -87,13 +94,6 @@ export const AuthProvider = ({ children }) => {
     },
     [fetchUser]
   );
-
-  const logout = useCallback(() => {
-    localStorage.removeItem("token");
-    setToken(null);
-    setUser(null);
-    delete api.defaults.headers.common["Authorization"];
-  }, []);
 
   const value = {
     user,

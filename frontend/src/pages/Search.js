@@ -15,15 +15,7 @@ const Search = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    if (searchTerm && isAuthenticated) {
-      performSearch();
-    } else if (!isAuthenticated) {
-      setError("Please login to search videos");
-    }
-  }, [searchTerm, isAuthenticated]);
-
-  const performSearch = async () => {
+  const performSearch = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -37,7 +29,15 @@ const Search = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [searchTerm]);
+
+  useEffect(() => {
+    if (searchTerm && isAuthenticated) {
+      performSearch();
+    } else if (!isAuthenticated) {
+      setError("Please login to search videos");
+    }
+  }, [searchTerm, isAuthenticated, performSearch]);
 
   if (!isAuthenticated) {
     return (
