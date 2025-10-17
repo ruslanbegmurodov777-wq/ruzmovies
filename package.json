@@ -1,0 +1,43 @@
+{
+  "name": "ruzmovie",
+  "version": "1.0.0",
+  "description": "Full-stack movie streaming platform",
+  "type": "module",
+  "main": "backend/src/server.js",
+  "scripts": {
+    "build": "cd frontend && npm run build",
+    "start": "cd backend && npm start",
+    "dev": "netlify dev",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "movie",
+    "streaming",
+    "video",
+    "react",
+    "nodejs",
+    "express"
+  ],
+  "author": "Ruzmovie Team",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "netlify-cli": "^17.32.1",
+    "serverless-http": "^3.2.0"
+  },
+  "dependencies": {
+    "axios": "^1.6.8",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^1.4.5-lts.1",
+    "mysql2": "^3.9.7",
+    "node-fetch": "^3.3.2",
+    "pg": "^8.11.5",
+    "pg-hstore": "^2.3.4",
+    "sequelize": "^6.37.3",
+    "web-vitals": "^4.1.0"
+  }
+}

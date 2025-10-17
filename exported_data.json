@@ -1,0 +1,23 @@
+{
+  "users": [
+    {
+      "id": "20505fad-b972-487a-b0cb-708b9bff8e5c",
+      "firstname": "Admin",
+      "lastname": "User",
+      "username": "admin",
+      "email": "admin@movie.com",
+      "password": "$2a$10$HaaMo2ORQOudrtcFw2n26.qNi3rt0K1duNqanRXatRnvNeRj6QJkC",
+      "avatar": "https://res.cloudinary.com/tylerdurden/image/upload/v1602657481/random/pngfind.com-default-image-png-6764065_krremh.png",
+      "cover": "https://res.cloudinary.com/tylerdurden/image/upload/v1617334073/random/Rectangle_2_mbyujf.png",
+      "channelDescription": null,
+      "isAdmin": true,
+      "createdAt": "2025-10-14T12:35:45.652Z",
+      "updatedAt": "2025-10-14T12:35:45.652Z"
+    }
+  ],
+  "videos": [],
+  "videoLikes": [],
+  "comments": [],
+  "subscriptions": [],
+  "views": []
+}
