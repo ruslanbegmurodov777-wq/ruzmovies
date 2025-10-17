@@ -10,15 +10,16 @@ import api from "../utils/api"; // Import the configured api instance
 import "./VideoCard.css";
 
 const VideoCard = React.memo(({ video }) => {
-  // Handle case where video is undefined or null
-  if (!video) {
-    return null; // Don't render anything if video is not provided
-  }
-
   const [isHovered, setIsHovered] = useState(false);
   const { isStarred, toggleStarred } = useStarred();
 
+  // Always define hooks at the top level
   const getThumbnail = useCallback(() => {
+    // Handle case where video is undefined or null
+    if (!video) {
+      return "/placeholder-thumbnail.jpg";
+    }
+    
     // For file uploads with thumbnail files, use the thumbnail file URL
     if (video.thumbnailFileUrl) {
       // Construct the full URL using the API base URL
@@ -41,16 +42,21 @@ const VideoCard = React.memo(({ video }) => {
     }
 
     return "/placeholder-thumbnail.jpg";
-  }, [video.thumbnail, video.thumbnailFileUrl, video.url]);
+  }, [video]);
 
   const getVideoPreview = useCallback(() => {
+    // Handle case where video is undefined or null
+    if (!video) {
+      return null;
+    }
+    
     const videoType = getVideoType(video.url);
     if (videoType === "youtube") {
       const videoId = getYouTubeVideoId(video.url);
       return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&controls=0&loop=1&playlist=${videoId}`;
     }
     return null;
-  }, [video.url]);
+  }, [video]);
 
   const formatViews = useCallback((views) => {
     if (views >= 1000000) {
@@ -62,6 +68,11 @@ const VideoCard = React.memo(({ video }) => {
   }, []);
 
   const formatDate = useCallback((dateString) => {
+    // Handle case where dateString is undefined or null
+    if (!dateString) {
+      return null;
+    }
+    
     const date = new Date(dateString);
     const now = new Date();
     const diffTime = Math.abs(now - date);
@@ -77,13 +88,34 @@ const VideoCard = React.memo(({ video }) => {
   const handleStarClick = useCallback((e) => {
     e.preventDefault();
     e.stopPropagation();
-    toggleStarred(video);
+    // Handle case where video is undefined or null
+    if (video) {
+      toggleStarred(video);
+    }
   }, [toggleStarred, video]);
 
   const thumbnailUrl = useMemo(() => getThumbnail(), [getThumbnail]);
   const videoPreviewUrl = useMemo(() => getVideoPreview(), [getVideoPreview]);
-  const viewsFormatted = useMemo(() => formatViews(video.views), [formatViews, video.views]);
-  const dateFormatted = useMemo(() => video.createdAt ? formatDate(video.createdAt) : null, [formatDate, video.createdAt]);
+  const viewsFormatted = useMemo(() => {
+    // Handle case where video is undefined or null
+    if (!video) {
+      return "0";
+    }
+    return formatViews(video.views);
+  }, [formatViews, video]);
+  
+  const dateFormatted = useMemo(() => {
+    // Handle case where video is undefined or null
+    if (!video || !video.createdAt) {
+      return null;
+    }
+    return formatDate(video.createdAt);
+  }, [formatDate, video]);
+
+  // Handle case where video is undefined or null
+  if (!video) {
+    return null; // Don't render anything if video is not provided
+  }
 
   return (
     <div
