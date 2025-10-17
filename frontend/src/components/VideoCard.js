@@ -10,6 +10,11 @@ import api from "../utils/api"; // Import the configured api instance
 import "./VideoCard.css";
 
 const VideoCard = React.memo(({ video }) => {
+  // Handle case where video is undefined or null
+  if (!video) {
+    return null; // Don't render anything if video is not provided
+  }
+
   const [isHovered, setIsHovered] = useState(false);
   const { isStarred, toggleStarred } = useStarred();
 
@@ -132,7 +137,7 @@ const VideoCard = React.memo(({ video }) => {
           )}
         </div>
         <div className="video-info">
-          <h3 className="video-title">{video.title}</h3>
+          <h3 className="video-title">{video.title || "Untitled Video"}</h3>
           <div className="video-meta">
             <span className="video-author">
               {video.User?.username || "Unknown User"}

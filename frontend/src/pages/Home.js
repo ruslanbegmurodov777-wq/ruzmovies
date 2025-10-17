@@ -6,8 +6,8 @@ import "./Home.css";
 
 const Home = () => {
   const { isAdmin } = useAuth();
-  const [videos, setVideos] = useState([]);
-  const [filteredVideos, setFilteredVideos] = useState([]);
+  const [videos, setVideos] = useState([]); // Initialize with empty array
+  const [filteredVideos, setFilteredVideos] = useState([]); // Initialize with empty array
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeCategory, setActiveCategory] = useState("all");
@@ -27,11 +27,15 @@ const Home = () => {
     try {
       setLoading(true);
       const videosData = await fetchVideos();
-      setVideos(videosData);
-      setFilteredVideos(videosData);
+      // Ensure videosData is an array before setting state
+      setVideos(Array.isArray(videosData) ? videosData : []);
+      setFilteredVideos(Array.isArray(videosData) ? videosData : []);
     } catch (error) {
       // Silently handle error to avoid console pollution
       setError("Failed to load videos");
+      // Reset to empty arrays on error
+      setVideos([]);
+      setFilteredVideos([]);
     } finally {
       setLoading(false);
     }
@@ -42,15 +46,21 @@ const Home = () => {
   }, [fetchRecommendedVideos]);
 
   const filterVideosByCategory = useCallback(() => {
+    // Ensure videos is an array before filtering
+    const videosArray = Array.isArray(videos) ? videos : [];
+    
     let filtered;
     if (activeCategory === "all") {
-      filtered = videos;
+      filtered = videosArray;
     } else {
-      filtered = videos.filter((video) => video.category === activeCategory);
+      filtered = videosArray.filter((video) => video && video.category === activeCategory);
     }
 
     // Ensure top-rated videos stay at the top even after filtering
     const sortedFiltered = [...filtered].sort((a, b) => {
+      // Check if a and b are valid objects
+      if (!a || !b) return 0;
+      
       // First sort by featured (top-rated) status
       if (a.featured && !b.featured) return -1;
       if (!a.featured && b.featured) return 1;
@@ -79,6 +89,9 @@ const Home = () => {
     );
   }, [activeCategory, categories]);
 
+  // Ensure filteredVideos is an array before accessing length
+  const filteredVideosArray = Array.isArray(filteredVideos) ? filteredVideos : [];
+
   if (loading) {
     return <div className="loading">Loading videos...</div>;
   }
@@ -95,7 +108,7 @@ const Home = () => {
             <h3>Admin Dashboard</h3>
             <div className="admin-stats">
               <div className="stat-card">
-                <span className="stat-number">{videos.length}</span>
+                <span className="stat-number">{Array.isArray(videos) ? videos.length : 0}</span>
                 <span className="stat-label">Total Videos</span>
               </div>
             </div>
@@ -119,12 +132,12 @@ const Home = () => {
           </div>
         </div>
 
-        {filteredVideos.length === 0 && !loading ? (
+        {filteredVideosArray.length === 0 && !loading ? (
           <div className="no-videos">{noVideosMessage}</div>
         ) : (
           <div className="videos-grid">
-            {filteredVideos.map((video) => (
-              <VideoCard key={video.id} video={video} />
+            {filteredVideosArray.map((video) => (
+              <VideoCard key={video && video.id ? video.id : Math.random()} video={video} />
             ))}
           </div>
         )}

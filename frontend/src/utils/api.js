@@ -48,10 +48,12 @@ api.interceptors.response.use(
 export const fetchVideos = async () => {
   try {
     const response = await api.get("/videos");
-    return response.data.data;
+    // Ensure we return an array even if response.data.data is not an array
+    return Array.isArray(response.data.data) ? response.data.data : [];
   } catch (error) {
     console.error("Error fetching videos:", error);
-    throw error;
+    // Return empty array on error
+    return [];
   }
 };
 
@@ -80,10 +82,12 @@ export const searchVideos = async (searchTerm) => {
     const response = await api.get(
       `/videos/search?searchterm=${encodeURIComponent(searchTerm)}`
     );
-    return response.data.data;
+    // Ensure we return an array even if response.data.data is not an array
+    return Array.isArray(response.data.data) ? response.data.data : [];
   } catch (error) {
     console.error(`Error searching videos for "${searchTerm}":`, error);
-    throw error;
+    // Return empty array on error
+    return [];
   }
 };
 
