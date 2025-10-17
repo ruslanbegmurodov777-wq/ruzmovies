@@ -1,11 +1,11 @@
 {
   "name": "ruzmovie",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Full-stack movie streaming platform",
   "type": "module",
   "main": "backend/src/server.js",
   "scripts": {
-    "build": "cd frontend && npm run build",
+    "build": "cd frontend && npm install && npm run build",
     "start": "cd backend && npm start",
     "dev": "netlify dev",
     "test": "echo \"Error: no test specified\" && exit 1"
