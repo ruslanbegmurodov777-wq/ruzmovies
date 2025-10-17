@@ -2,11 +2,11 @@
 import axios from "axios";
 
 // Create an axios instance
-// Use Netlify functions for API calls in production, direct API in development
+// Use Render backend URL for API calls in production, direct API in development
 const isDevelopment = process.env.NODE_ENV === 'development';
 const baseURL = isDevelopment 
   ? process.env.REACT_APP_API_URL || ""
-  : "/.netlify/functions/api";
+  : "https://ruzmovies.onrender.com/api/v1"; // Direct connection to Render backend
 
 const api = axios.create({
   baseURL: baseURL,
