@@ -1,4 +1,3 @@
-
 # Troubleshooting Deployment Issues
 
 This guide helps you identify and fix common deployment issues with the Ruzmovie application.
@@ -36,15 +35,16 @@ The JWT_SECRET environment variable is not properly configured or is undefined.
 
 **Symptoms**:
 - "PathError [TypeError]: Missing parameter name at index 1: *"
+- "PathError [TypeError]: Missing parameter name at index 2: /*"
 - Server fails to start
 - Application crashes on startup
 
 **Root Cause**:
-In Express 5, the `*` pattern in route definitions needs to be prefixed with `/` to work correctly.
+In Express 5, wildcard patterns like `*` and `/*` are no longer valid because the path-to-regexp library now treats `*` as a parameter placeholder. Using these patterns will result in PathError exceptions.
 
 **Solutions**:
-1. Change `app.get('*', ...)` to `app.get('/*', ...)` in server.js
-2. Or use `app.use((req, res) => { ... })` for a more robust solution
+1. Replace `app.get('*', ...)` or `app.get('/*', ...)` with `app.use((req, res) => { ... })`
+2. Add conditional logic to only serve index.html for non-API routes
 
 Example fix:
 ```javascript
@@ -53,9 +53,16 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'frontend', 'build', 'index.html'));
 });
 
-// ✅ Correct (Express 5 compatible)
+// ❌ Also incorrect (Express 5 incompatible)
 app.get('/*', (req, res) => {
   res.sendFile(path.join(__dirname, 'frontend', 'build', 'index.html'));
+});
+
+// ✅ Correct (Express 5 compatible)
+app.use((req, res) => {
+  if (!req.path.startsWith('/api')) {
+    res.sendFile(path.join(__dirname, 'frontend', 'build', 'index.html'));
+  }
 });
 ```
 

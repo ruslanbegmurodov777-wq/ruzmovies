@@ -48,14 +48,15 @@ The frontend was trying to make API requests to the wrong URL. The frontend runs
 ## 3. **Express 5 Path Pattern Issue**
 
 ### Problem
-The application was throwing "PathError [TypeError]: Missing parameter name at index 1: *" when trying to start the server.
+The application was throwing "PathError [TypeError]: Missing parameter name at index 1: *" or "PathError [TypeError]: Missing parameter name at index 2: /*" when trying to start the server.
 
 ### Root Cause
-In Express 5, the `*` pattern in route definitions needs to be prefixed with `/` to work correctly. The code was using `app.get('*', ...)` which is not compatible with Express 5.
+In Express 5, wildcard patterns like `*` and `/*` are no longer valid because the path-to-regexp library now treats `*` as a parameter placeholder. Using these patterns will result in PathError exceptions.
 
 ### Fix
-1. Changed `app.get('*', ...)` to `app.get('/*', ...)` in the server.js file
-2. Added a comment explaining the fix for future reference
+1. Replaced `app.get('*', ...)` or `app.get('/*', ...)` with `app.use((req, res) => { ... })`
+2. Added conditional logic to only serve index.html for non-API routes
+3. Added comments explaining the fix for future reference
 
 ### Files Modified
 1. [backend/src/server.js](file:///C:/Users/user/Desktop/Ruzmovie/backend/src/server.js) - Fixed Express 5 path pattern issue
