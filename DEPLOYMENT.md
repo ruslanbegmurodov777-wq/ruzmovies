@@ -1,14 +1,23 @@
-# Deployment Guide for Ruzmovie on Netlify
+# Deployment Guide for Ruzmovie
+
+This repository supports two deployment approaches:
+
+1. **[Unified Deployment](#unified-deployment)** - Deploy the entire application on Netlify using serverless functions
+2. **[Separated Deployment](#separated-deployment)** - Deploy frontend and backend on separate platforms
+
+Choose the approach that best fits your needs.
+
+## Unified Deployment
 
 This guide explains how to deploy the Ruzmovie application entirely on Netlify using serverless functions.
 
-## Prerequisites
+### Prerequisites
 
 1. A Netlify account
 2. A GitHub/GitLab/Bitbucket repository with the Ruzmovie code
 3. An external MySQL database (PlanetScale, Supabase, AWS RDS, etc.)
 
-## Project Structure for Netlify Deployment
+### Project Structure for Netlify Deployment
 
 ```
 Ruzmovie/
@@ -30,9 +39,9 @@ Ruzmovie/
 └── netlify.toml (Netlify configuration)
 ```
 
-## Setup Instructions
+### Setup Instructions
 
-### 1. Connect Repository to Netlify
+#### 1. Connect Repository to Netlify
 
 1. Go to [Netlify](https://netlify.com) and log in to your account
 2. Click "New site from Git"
@@ -43,7 +52,7 @@ Ruzmovie/
    - Build command: `npm run build`
    - Publish directory: `frontend/build`
 
-### 2. Configure Environment Variables
+#### 2. Configure Environment Variables
 
 In the Netlify dashboard:
 
@@ -62,31 +71,31 @@ JWT_SECRET=your-super-secret-jwt-key
 FRONTEND_URL=https://your-site-name.netlify.app
 ```
 
-### 3. External Database Setup
+#### 3. External Database Setup
 
 Since Netlify serverless functions cannot directly connect to localhost databases, you need an external database:
 
-#### Options:
+##### Options:
 1. **PlanetScale** (MySQL) - Free tier available
 2. **Supabase** (PostgreSQL) - Free tier available
 3. **AWS RDS** (MySQL/PostgreSQL)
 4. **Google Cloud SQL** (MySQL/PostgreSQL)
 5. **Azure Database** (MySQL/PostgreSQL)
 
-#### PlanetScale Setup (Recommended for Development):
+##### PlanetScale Setup (Recommended for Development):
 1. Go to [PlanetScale](https://planetscale.com)
 2. Create a free account
 3. Create a new database
 4. Get the connection details (host, username, password, database name)
 5. Add these details to your Netlify environment variables
 
-### 4. Deploy the Site
+#### 4. Deploy the Site
 
 1. After configuring the environment variables, Netlify will automatically deploy your site
 2. The first deployment might take a few minutes
 3. Once deployed, you can access your site at the provided Netlify URL
 
-## Local Development
+### Local Development
 
 To run the application locally with Netlify functions:
 
@@ -96,14 +105,14 @@ npm run dev
 
 This will start the Netlify development server which emulates the production environment.
 
-## How It Works
+### How It Works
 
 1. **Frontend**: The React application is built and served as static files
 2. **Backend**: The Express application is wrapped in a serverless function using `serverless-http`
 3. **API Routes**: All API requests to `/api/*` are redirected to the serverless function
 4. **Static Files**: All other requests are served the React application (SPA routing)
 
-## File Uploads
+### File Uploads
 
 The application supports both URL-based videos and file uploads. For file uploads to work properly on Netlify:
 
@@ -111,7 +120,7 @@ The application supports both URL-based videos and file uploads. For file upload
 2. This approach works well for small files but may not be suitable for large video files
 3. For production applications with large video files, consider using a cloud storage service like AWS S3, Cloudinary, or similar
 
-## Custom Domain
+### Custom Domain
 
 To use a custom domain:
 
@@ -120,31 +129,31 @@ To use a custom domain:
 3. Follow the instructions to configure DNS records with your domain registrar
 4. Netlify will automatically provision an SSL certificate for your custom domain
 
-## Troubleshooting
+### Troubleshooting
 
-### Database Connection Issues
+#### Database Connection Issues
 - Ensure your database allows connections from external sources
 - Verify all database environment variables are correctly set
 - Check that your database credentials are correct
 
-### API Errors
+#### API Errors
 - Check the Netlify function logs for error details
 - Ensure all required environment variables are set
 - Verify the database connection
 
-### Build Failures
+#### Build Failures
 - Check the build logs in the Netlify dashboard
 - Ensure all dependencies are correctly specified in package.json files
 - Make sure the build command and publish directory are correctly configured
 
-## Scaling Considerations
+### Scaling Considerations
 
 1. **Database**: Choose a database plan that can handle your expected traffic
 2. **File Storage**: For large video files, consider using a CDN or cloud storage service
 3. **Function Execution Time**: Netlify functions have execution time limits; optimize database queries
 4. **Concurrent Connections**: Plan for the number of concurrent users your application will support
 
-## Monitoring and Analytics
+### Monitoring and Analytics
 
 Netlify provides built-in analytics and monitoring:
 - Performance metrics
@@ -156,3 +165,7 @@ For more detailed application monitoring, consider integrating:
 - Application logging
 - Performance monitoring tools
 - Error tracking services
+
+## Separated Deployment
+
+For a separated deployment approach where frontend and backend are deployed on different platforms, please refer to the [Separated Deployment Guide](SEPARATED_DEPLOYMENT.md).

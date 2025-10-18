@@ -2,11 +2,9 @@
 import axios from "axios";
 
 // Create an axios instance
-// Use Render backend URL for API calls in production, direct API in development
+// Use proxy in development, Render backend URL in production
 const isDevelopment = process.env.NODE_ENV === 'development';
-const baseURL = isDevelopment 
-  ? process.env.REACT_APP_API_URL || ""
-  : "https://ruzmovies.onrender.com/api/v1"; // Direct connection to Render backend
+const baseURL = isDevelopment ? "/api/v1" : "https://your-render-app-name.onrender.com/api/v1";
 
 const api = axios.create({
   baseURL: baseURL,

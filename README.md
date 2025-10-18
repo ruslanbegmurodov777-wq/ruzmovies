@@ -1,146 +1,177 @@
 # Ruzmovie - Full Stack Movie Streaming Platform
 
-Ruzmovie is a full-stack movie streaming platform built with React (Frontend) and Node.js/Express (Backend). This project can be deployed entirely on Netlify using serverless functions.
+Ruzmovie is a full-stack movie streaming platform built with React, Node.js, Express, and MySQL. It allows users to stream, upload, and manage videos with user authentication and admin controls.
+
+## Features
+
+- User authentication (login/register) via JWT
+- Video upload, playback, and management
+- Admin dashboard for content moderation
+- User profile management
+- Video search and browsing
+- Like, comment, and view tracking
+- Dark mode support
+
+## Prerequisites
+
+- Node.js (v14 or higher)
+- MySQL database
+- npm or yarn package manager
+
+## Getting Started
+
+### 1. Clone the repository
+
+```bash
+git clone <repository-url>
+cd ruzmovie
+```
+
+### 2. Install dependencies
+
+```bash
+# Install root dependencies
+npm install
+
+# Install frontend dependencies
+cd frontend
+npm install
+cd ..
+
+# Install backend dependencies
+cd backend
+npm install
+cd ..
+```
+
+### 3. Configure environment variables
+
+Create a `.env` file in the `backend` directory with the following variables:
+
+```env
+# Database Configuration
+DB_HOST=127.0.0.1
+DB_USER=root
+DB_PASS=your_database_password
+DB_NAME=movie
+DB_DIALECT=mysql
+DB_PORT=3306
+
+# JWT Configuration
+JWT_SECRET=your_super_secret_key_here
+JWT_EXPIRE=30d
+
+# Frontend URL (for CORS)
+FRONTEND_URL=http://localhost:3000
+
+# Server Port
+PORT=5000
+```
+
+> **Important**: Make sure to use a strong, random value for `JWT_SECRET`. You can generate one using:
+> ```bash
+> node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+> ```
+
+### 4. Set up the database
+
+Follow the instructions in [DATABASE_SETUP.md](DATABASE_SETUP.md) to set up your MySQL database.
+
+### 5. Run the application
+
+```bash
+# Start the development server
+npm run dev
+```
+
+The application will be available at:
+- Frontend: http://localhost:3000
+- Backend API: http://localhost:5000
 
 ## Project Structure
 
 ```
-Ruzmovie/
+ruzmovie/
 │
 ├── backend/
 │   ├── src/
-│   ├── package.json
-│   └── ...
+│   │   ├── config/
+│   │   ├── controllers/
+│   │   ├── middlewares/
+│   │   ├── models/
+│   │   ├── routes/
+│   │   ├── sequelize.js
+│   │   └── server.js
+│   ├── .env
+│   └── package.json
 │
 ├── frontend/
+│   ├── public/
 │   ├── src/
-│   ├── package.json
-│   └── build/
+│   │   ├── components/
+│   │   ├── contexts/
+│   │   ├── pages/
+│   │   ├── utils/
+│   │   ├── App.js
+│   │   └── index.js
+│   └── package.json
 │
-├── netlify/
-│   └── functions/
-│       └── api.js (serverless function)
-│
-└── netlify.toml (Netlify configuration)
+└── netlify/
+    └── functions/
+        └── api.js
 ```
-
-## Quick Start
-
-### Development Mode
-
-To run both frontend and backend in development mode simultaneously:
-
-```bash
-npm run dev
-```
-
-This will start:
-- Frontend on http://localhost:3000
-- Backend API through Netlify functions
-
-### Production Build
-
-To build the frontend app for production:
-
-```bash
-npm run build
-```
-
-This will:
-1. Build the React frontend application
-
-### Production Start
-
-To start the production server locally (emulates Netlify environment):
-
-```bash
-npm start
-```
-
-This will start the Netlify development server which will:
-1. Serve the API endpoints under `/api/*` through serverless functions
-2. Serve the React frontend application for all other routes
-
-## Environment Variables
-
-### Local Development (.env.local)
-Create a `.env.local` file in the root directory:
-
-```
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_USER=root
-DB_PASS=ruslanbek777
-DB_NAME=movie
-DB_DIALECT=mysql
-JWT_SECRET=mySuperSecretKey2025!
-FRONTEND_URL=http://localhost:3000
-PORT=5000
-```
-
-### Production/Railway (.env)
-The `.env` file in the root directory is configured for Railway deployment:
-
-```
-DB_HOST=containers-us-west-123.railway.app
-DB_PORT=3306
-DB_USER=root
-DB_PASS=uiAYlmNHzlcIdtbkcRnobyGXhpYaZxWI
-DB_NAME=railway
-DB_DIALECT=mysql
-JWT_SECRET=your-super-secret-jwt-key
-FRONTEND_URL=https://your-site-name.netlify.app
-PORT=5000
-```
-
-## Database Setup
-
-For detailed database setup instructions, see [DATABASE_SETUP.md](DATABASE_SETUP.md).
-
-## Deployment to Netlify
-
-1. Push your code to a GitHub repository
-2. Connect your repository to Netlify
-3. Set the build settings in Netlify:
-   - Build command: `npm run build`
-   - Publish directory: `frontend/build`
-4. Set the environment variables in the Netlify dashboard
-5. Deploy!
-
-## API Endpoints
-
-- `/api/v1/auth` - Authentication endpoints
-- `/api/v1/admin` - Admin-only endpoints
-- `/api/v1/videos` - Video management endpoints
-- `/api/v1/users` - User management endpoints
 
 ## Available Scripts
 
-In the project directory, you can run:
+### Root directory
+- `npm run dev` - Start development server with Netlify functions
+- `npm run build` - Build the frontend application
 
-### `npm run build`
-Builds the frontend app for production.
+### Backend
+- `npm start` - Start the backend server
+- `npm run dev` - Start the backend server in development mode with nodemon
+- `npm run init-db` - Initialize the database
+- `npm run test-jwt` - Test JWT secret configuration
+- `npm run test-jwt-token` - Test JWT token creation and verification
 
-### `npm start`
-Runs the Netlify development server which emulates the production environment.
+### Frontend
+- `npm start` - Start the frontend development server
+- `npm run build` - Build the frontend for production
 
-### `npm run dev`
-Runs the Netlify development server (same as `npm start`).
+## Deployment
 
-### `npm test`
-Launches the test runner in the interactive watch mode.
+For deployment instructions, see:
+- [DEPLOYMENT.md](DEPLOYMENT.md) for unified deployment on Netlify
+- [SEPARATED_DEPLOYMENT.md](SEPARATED_DEPLOYMENT.md) for separated frontend and backend deployment
 
-## Serverless Functions
+## Troubleshooting
 
-The backend Express application is wrapped in a serverless function located at `netlify/functions/api.js`. This allows the entire application to be deployed on Netlify.
+### JWT_SECRET Error
 
-## Database Connection
+If you encounter the error "secretOrPrivateKey must have a value", it means the JWT_SECRET environment variable is not properly configured. Make sure:
 
-For Netlify deployment, you'll need to use an external database service like:
-- PlanetScale (MySQL)
-- Supabase (PostgreSQL)
-- AWS RDS
-- Google Cloud SQL
-- Azure Database for MySQL/PostgreSQL
+1. You have created a `.env` file in the `backend` directory
+2. The `JWT_SECRET` variable is set with a strong secret value
+3. The backend server is restarted after making changes to the `.env` file
 
-Make sure to configure the database environment variables in the Netlify dashboard.
+You can test your JWT configuration by running:
+```bash
+cd backend
+npm run test-jwt
+```
+
+### Database Connection Issues
+
+If you're having trouble connecting to the database:
+
+1. Verify your database credentials in the `.env` file
+2. Ensure your MySQL server is running
+3. Check that the database exists and the user has proper permissions
+
+### Common Issues
+
+See [TROUBLESHOOTING.md](TROUBLESHOOTING.md) for solutions to common issues.
+
+## License
+
+This project is licensed under the MIT License.

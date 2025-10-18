@@ -1,74 +1,39 @@
-# Database Setup Guide
+# Database Setup Guide for Ruzmovie
 
-## Local Development
+This guide explains how to set up the database for the Ruzmovie application in different environments.
 
-For local development, the application uses a local MySQL database. Make sure you have MySQL installed and running on your machine.
+## Prerequisites
 
-### Environment Configuration
+1. MySQL server installed and running
+2. Node.js and npm installed
+3. Git repository cloned
 
-The application automatically loads environment variables from `.env.local` when running in development mode.
+## Local Development Setup
 
-To run the application in development mode:
-```bash
-# Set environment to development
-export NODE_ENV=development  # On Windows: $env:NODE_ENV="development"
+### 1. Install MySQL
 
-# Start the application
-npm run dev
+If you don't have MySQL installed, you can:
+
+1. Download MySQL Community Server from the official website
+2. Use XAMPP/WAMP/MAMP for an all-in-one solution
+3. Use Docker:
+   ```bash
+   docker run --name ruzmovie-mysql -e MYSQL_ROOT_PASSWORD=ruslanbek777 -e MYSQL_DATABASE=movie -p 3306:3306 -d mysql:8.0
+   ```
+
+### 2. Create Database
+
+Create the database using MySQL client:
+
+```sql
+CREATE DATABASE movie;
 ```
 
-### Local Database Setup
+### 3. Configure Environment Variables
 
-1. Install MySQL on your local machine
-2. Create a database named `movie`
-3. Create a user with username `root` and password `ruslanbek777`
-4. Grant all privileges to the user on the `movie` database
+Create a `.env` file in the `backend` directory with the following content:
 
-Alternatively, you can modify the `.env.local` file with your own database credentials.
-
-## Railway Deployment
-
-For Railway deployment, the application uses the Railway-provided MySQL database.
-
-### Environment Configuration
-
-The application automatically loads environment variables from `.env` when running in production mode.
-
-To run the application in production mode:
-```bash
-# Set environment to production
-export NODE_ENV=production  # On Windows: $env:NODE_ENV="production"
-
-# Start the application
-npm start
-```
-
-### Railway Database Troubleshooting
-
-If you're getting a "connect ETIMEDOUT" error when trying to connect to the Railway database, try these steps:
-
-1. **Check if the database is online**: 
-   - Go to your Railway project dashboard
-   - Check if the MySQL database is in a "Running" state
-
-2. **Verify credentials**:
-   - Double-check the credentials in your `.env` file
-   - Make sure they match what Railway provides
-
-3. **Network connectivity**:
-   - Some networks may block connections to external databases
-   - Try connecting from a different network
-
-4. **Firewall settings**:
-   - Check if your firewall is blocking outgoing connections on port 3306
-
-5. **Temporary local development**:
-   - If you need to work on the application immediately, switch to local development mode
-   - Set `NODE_ENV=development` to use your local database
-
-## Environment Files
-
-### .env.local (Local Development)
+#### .env.local (Local Development)
 ```env
 # Database Configuration for Local Development
 DB_HOST=127.0.0.1
@@ -88,7 +53,13 @@ FRONTEND_URL=http://localhost:3000
 PORT=5000
 ```
 
-### .env (Production/Railway)
+> **Note**: You can generate a stronger JWT secret by running:
+> ```bash
+> cd backend
+> npm run generate-jwt-secret
+> ```
+
+#### .env (Production/Railway)
 ```env
 # Database Configuration for Railway
 DB_HOST=containers-us-west-123.railway.app

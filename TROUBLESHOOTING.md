@@ -4,7 +4,34 @@ This guide helps you identify and fix common deployment issues with the Ruzmovie
 
 ## Common Deployment Errors and Solutions
 
-### 1. Database Connection Issues
+### 1. JWT_SECRET Configuration Error
+
+**Symptoms**:
+- "Error: secretOrPrivateKey must have a value"
+- "Cannot create JWT token" errors
+- Authentication failures
+
+**Root Cause**:
+The JWT_SECRET environment variable is not properly configured or is undefined.
+
+**Solutions**:
+1. Create a `.env` file in the `backend` directory
+2. Add the JWT_SECRET variable with a strong secret value:
+   ```env
+   JWT_SECRET=your_super_secret_key_here
+   JWT_EXPIRE=30d
+   ```
+3. Generate a strong secret key:
+   ```bash
+   node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+   ```
+4. Test your JWT configuration:
+   ```bash
+   cd backend
+   npm run test-jwt
+   ```
+
+### 2. Database Connection Issues
 
 **Symptoms**:
 - "Unable to connect to the database" error
@@ -23,7 +50,7 @@ cd backend
 node testDatabaseConnection.js
 ```
 
-### 2. Environment Variables Not Set
+### 3. Environment Variables Not Set
 
 **Symptoms**:
 - "process.env.VARIABLE is undefined" errors
@@ -35,7 +62,7 @@ node testDatabaseConnection.js
 2. Check that variable names match exactly (case-sensitive)
 3. Verify no typos in variable names
 
-### 3. Port Configuration Issues
+### 4. Port Configuration Issues
 
 **Symptoms**:
 - "Port already in use" errors
@@ -46,7 +73,7 @@ node testDatabaseConnection.js
 1. Use `process.env.PORT` for the port number in server.js
 2. Ensure the port is correctly configured in the deployment platform
 
-### 4. CORS Errors
+### 5. CORS Errors
 
 **Symptoms**:
 - Frontend can't make API requests to backend
@@ -57,7 +84,7 @@ node testDatabaseConnection.js
 2. Ensure the frontend URL is in the allowed origins list
 3. Set the correct FRONTEND_URL environment variable
 
-### 5. Build Failures
+### 6. Build Failures
 
 **Symptoms**:
 - Deployment fails during build step
@@ -112,6 +139,13 @@ node testDatabaseConnection.js
    node testDatabaseConnection.js
    ```
 
+4. **Test JWT configuration**:
+   ```bash
+   # In backend directory
+   npm run test-jwt
+   npm run test-jwt-token
+   ```
+
 ## Common Fixes
 
 ### 1. Update package.json scripts
@@ -121,7 +155,9 @@ Make sure your backend package.json has:
 {
   "scripts": {
     "start": "node src/server.js",
-    "dev": "nodemon src/server.js"
+    "dev": "nodemon src/server.js",
+    "test-jwt": "node testJwtSecret.js",
+    "test-jwt-token": "node testJwtToken.js"
   }
 }
 ```

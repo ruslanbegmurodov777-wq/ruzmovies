@@ -3,7 +3,7 @@ services:
     name: ruzmovie-backend
     env: node
     buildCommand: npm install
-    startCommand: npm start
+    startCommand: node backend/src/server.js
     envVars:
       - key: NODE_ENV
         value: production
@@ -24,10 +24,14 @@ services:
       - key: JWT_EXPIRE
         value: 30d
       - key: FRONTEND_URL
-        value: https://ruzmovies.netlify.app
+        sync: false
+      - key: RENDER_BACKEND_URL
+        sync: false
       - key: ADMIN_PASSWORD
         sync: false
       - key: TEST_USER_PASSWORD
         sync: false
+      - key: PORT
+        value: 10000
 
 databases: []

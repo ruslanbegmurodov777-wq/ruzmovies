@@ -8,7 +8,12 @@
     "start": "node src/server.js",
     "dev": "cross-env NODE_ENV=development nodemon src/server.js",
     "init-db": "cross-env NODE_ENV=development node src/initDatabase.js",
-    "build": "npm install --prefix ../frontend && npm run build --prefix ../frontend"
+    "build": "npm install --prefix ../frontend && npm run build --prefix ../frontend",
+    "test-connection": "node testDeployedConnection.js",
+    "test-videos": "node testVideosEndpoint.js",
+    "test-jwt": "node testJwtSecret.js",
+    "test-jwt-token": "node testJwtToken.js",
+    "generate-jwt-secret": "node generateJwtSecret.js"
   },
   "author": "Ruslanbek Begmurodov",
   "license": "MIT",

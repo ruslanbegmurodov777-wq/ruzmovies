@@ -30,11 +30,6 @@ const allowedOrigins = [
   process.env.FRONTEND_URL, // Your Netlify site from env
 ];
 
-// Add the Render backend URL to allowed origins
-if (process.env.RENDER_BACKEND_URL) {
-  allowedOrigins.push(process.env.RENDER_BACKEND_URL);
-}
-
 const corsOptions = {
   origin: function (origin, callback) {
     // Allow requests with no origin (like mobile apps or curl requests)
@@ -74,18 +69,6 @@ app.get("/api/health", (req, res) => {
   });
 });
 
-// ✅ Serve static files in production
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../../frontend/build')));
-  
-  // Handle React routing, return all non-API routes to React app
-  app.get('*', (req, res) => {
-    if (!req.path.startsWith('/api')) {
-      res.sendFile(path.join(__dirname, '../../frontend/build/index.html'));
-    }
-  });
-}
-
 // ✅ 404 handler
 app.use((req, res) => {
   res.status(404).json({ message: "Endpoint not found" });
@@ -93,37 +76,5 @@ app.use((req, res) => {
 
 // ✅ Error handler
 app.use(errorHandler);
-
-// ✅ Serverni ishga tushurish
-const PORT = process.env.PORT || 5000;
-
-// Start server - removed the condition that was preventing it from starting
-const server = app.listen(PORT, async () => {
-  console.log(`✅ Server running on port ${PORT}`);
-  
-  try {
-    // Test database connection
-    await sequelize.authenticate();
-    console.log("✅ Database connection established successfully.");
-    
-    // Sync models
-    await sequelize.sync({ force: false });
-    console.log("✅ All models synchronized successfully.");
-    
-    console.log(`🚀 Server is ready at http://localhost:${PORT}`);
-  } catch (error) {
-    console.error("❌ Database connection failed:", error.message);
-    process.exit(1);
-  }
-});
-
-// Handle unhandled promise rejections
-process.on('unhandledRejection', (err) => {
-  console.log(`Error: ${err.message}`);
-  // Close server & exit process
-  server.close(() => {
-    process.exit(1);
-  });
-});
 
 export default app;
