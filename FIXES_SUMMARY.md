@@ -20,7 +20,7 @@ JWT_SECRET environment variable was not properly configured in the backend envir
 1. [backend/.env](file:///C:/Users/user/Desktop/Ruzmovie/backend/.env) - Updated JWT_SECRET value
 2. [backend/testJwtSecret.js](file:///C:/Users/user/Desktop/Ruzmovie/backend/testJwtSecret.js) - Created test script
 3. [backend/testJwtToken.js](file:///C:/Users/user/Desktop/Ruzmovie/backend/testJwtToken.js) - Created token test script
-4. [backend/generateJwtSecret.js](file:///C:/Users/user/Desktop/Ruzmovie/backend/generateJwtSecret.js) - Created secret generation script
+4. [backend/generateJwtSecret.js](file:///C:/Users/user\Desktop/Ruzmovie/backend/generateJwtSecret.js) - Created secret generation script
 5. [backend/package.json](file:///C:/Users/user/Desktop/Ruzmovie/backend/package.json) - Added test scripts
 6. [README.md](file:///C:/Users/user/Desktop/Ruzmovie/README.md) - Updated documentation
 7. [TROUBLESHOOTING.md](file:///C:/Users/user/Desktop/Ruzmovie/TROUBLESHOOTING.md) - Added JWT troubleshooting section
@@ -45,7 +45,22 @@ The frontend was trying to make API requests to the wrong URL. The frontend runs
 2. [frontend/src/utils/api.js](file:///C:/Users/user/Desktop/Ruzmovie/frontend/src/utils/api.js) - Updated API configuration
 3. [frontend/.env](file:///C:/Users/user/Desktop/Ruzmovie/frontend/.env) - Removed conflicting environment variables
 
-## 3. **Environment Variable Loading**
+## 3. **Express 5 Path Pattern Issue**
+
+### Problem
+The application was throwing "PathError [TypeError]: Missing parameter name at index 1: *" when trying to start the server.
+
+### Root Cause
+In Express 5, the `*` pattern in route definitions needs to be prefixed with `/` to work correctly. The code was using `app.get('*', ...)` which is not compatible with Express 5.
+
+### Fix
+1. Changed `app.get('*', ...)` to `app.get('/*', ...)` in the server.js file
+2. Added a comment explaining the fix for future reference
+
+### Files Modified
+1. [backend/src/server.js](file:///C:/Users/user/Desktop/Ruzmovie/backend/src/server.js) - Fixed Express 5 path pattern issue
+
+## 4. **Environment Variable Loading**
 
 ### Problem
 Environment variables were not consistently loaded across different deployment environments.
@@ -56,7 +71,7 @@ Updated server.js to properly load environment variables from the backend root d
 ### Files Modified
 1. [backend/src/server.js](file:///C:/Users/user/Desktop/Ruzmovie/backend/src/server.js) - Improved environment variable loading
 
-## 4. **Separated Deployment Configuration**
+## 5. **Separated Deployment Configuration**
 
 ### Problem
 The application was designed primarily for unified Netlify deployment, but users needed separated frontend/backend deployment options.
@@ -72,7 +87,7 @@ Created comprehensive guide for separated deployment with frontend on Netlify an
 5. [backend/src/server.js](file:///C:/Users/user/Desktop/Ruzmovie/backend/src/server.js) - Updated CORS configuration
 6. [frontend/src/utils/api.js](file:///C:/Users/user/Desktop/Ruzmovie/frontend/src/utils/api.js) - Updated API configuration
 
-## 5. **Database Connection Improvements**
+## 6. **Database Connection Improvements**
 
 ### Problem
 Database connection configuration was not clearly documented for different environments.
@@ -84,7 +99,7 @@ Improved database setup documentation with clear examples for local and producti
 1. [DATABASE_SETUP.md](file:///C:/Users/user/Desktop/Ruzmovie/DATABASE_SETUP.md) - Enhanced documentation
 2. [backend/src/sequelize.js](file:///C:/Users/user/Desktop/Ruzmovie/backend/src/sequelize.js) - Improved configuration
 
-## 6. **CORS Configuration**
+## 7. **CORS Configuration**
 
 ### Problem
 CORS configuration was not flexible enough for different deployment scenarios.
@@ -140,4 +155,4 @@ After implementing these fixes, verify your deployment by:
 4. Testing frontend-backend communication
 5. Confirming CORS is properly configured
 
-These fixes should resolve the common JWT error and the 500 error when logging in, providing a more robust deployment process for the Ruzmovie application.
+These fixes should resolve the common JWT error, the 500 error when logging in, and the Express 5 path pattern issue, providing a more robust deployment process for the Ruzmovie application.

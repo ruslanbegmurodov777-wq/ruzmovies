@@ -1,3 +1,4 @@
+
 # Troubleshooting Deployment Issues
 
 This guide helps you identify and fix common deployment issues with the Ruzmovie application.
@@ -31,7 +32,34 @@ The JWT_SECRET environment variable is not properly configured or is undefined.
    npm run test-jwt
    ```
 
-### 2. Database Connection Issues
+### 2. Express 5 Path Pattern Error
+
+**Symptoms**:
+- "PathError [TypeError]: Missing parameter name at index 1: *"
+- Server fails to start
+- Application crashes on startup
+
+**Root Cause**:
+In Express 5, the `*` pattern in route definitions needs to be prefixed with `/` to work correctly.
+
+**Solutions**:
+1. Change `app.get('*', ...)` to `app.get('/*', ...)` in server.js
+2. Or use `app.use((req, res) => { ... })` for a more robust solution
+
+Example fix:
+```javascript
+// ❌ Incorrect (Express 5 incompatible)
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'frontend', 'build', 'index.html'));
+});
+
+// ✅ Correct (Express 5 compatible)
+app.get('/*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'frontend', 'build', 'index.html'));
+});
+```
+
+### 3. Database Connection Issues
 
 **Symptoms**:
 - "Unable to connect to the database" error
@@ -50,7 +78,7 @@ cd backend
 node testDatabaseConnection.js
 ```
 
-### 3. Environment Variables Not Set
+### 4. Environment Variables Not Set
 
 **Symptoms**:
 - "process.env.VARIABLE is undefined" errors
@@ -62,7 +90,7 @@ node testDatabaseConnection.js
 2. Check that variable names match exactly (case-sensitive)
 3. Verify no typos in variable names
 
-### 4. Port Configuration Issues
+### 5. Port Configuration Issues
 
 **Symptoms**:
 - "Port already in use" errors
@@ -73,7 +101,7 @@ node testDatabaseConnection.js
 1. Use `process.env.PORT` for the port number in server.js
 2. Ensure the port is correctly configured in the deployment platform
 
-### 5. CORS Errors
+### 6. CORS Errors
 
 **Symptoms**:
 - Frontend can't make API requests to backend
@@ -84,7 +112,7 @@ node testDatabaseConnection.js
 2. Ensure the frontend URL is in the allowed origins list
 3. Set the correct FRONTEND_URL environment variable
 
-### 6. Build Failures
+### 7. Build Failures
 
 **Symptoms**:
 - Deployment fails during build step

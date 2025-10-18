@@ -79,7 +79,8 @@ if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, '../../frontend/build')));
   
   // Handle React routing, return all non-API routes to React app
-  app.get('*', (req, res) => {
+  // Fixed Express 5 path pattern issue - changed from '*' to '/*'
+  app.get('/*', (req, res) => {
     if (!req.path.startsWith('/api')) {
       res.sendFile(path.join(__dirname, '../../frontend/build/index.html'));
     }
