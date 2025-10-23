@@ -4,16 +4,17 @@ import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
 
-// Get __dirname equivalent in ESM
+// Resolve directory
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Load environment variables from the backend root directory
-dotenv.config({ path: path.resolve(__dirname, '../.env') });
+// Load .env (root-level)
+dotenv.config({ path: path.resolve(__dirname, "../.env") });
 
-// Detect Aiven MySQL (ssl required)
+// Detect if Aiven MySQL (needs SSL)
 const isAiven = process.env.DB_HOST?.includes("aivencloud.com");
 
+// Create Sequelize instance
 const sequelize = new Sequelize(
   process.env.DB_NAME,
   process.env.DB_USER,
@@ -23,55 +24,58 @@ const sequelize = new Sequelize(
     port: process.env.DB_PORT,
     dialect: process.env.DB_DIALECT || "mysql",
     logging: false,
-
-    dialectOptions: isAiven
-      ? {
-          ssl: {
+    dialectOptions: {
+      ssl: isAiven
+        ? {
             require: true,
             rejectUnauthorized: false,
-          },
-          connectTimeout: 60000,
-        }
-      : {
-          connectTimeout: 60000,
-        },
-
+          }
+        : undefined,
+      connectTimeout: 90000, // 90s timeout
+    },
     pool: {
-      max: 5,
-      min: 0,
-      acquire: 60000,
-      idle: 10000,
+      max: 10,
+      min: 2,
+      acquire: 120000, // wait up to 2 min
+      idle: 20000,
+      evict: 10000,
+    },
+    retry: {
+      match: [
+        /ETIMEDOUT/,
+        /EHOSTUNREACH/,
+        /ECONNRESET/,
+        /SequelizeConnectionError/,
+      ],
+      max: 5, // Retry 5 times
     },
   }
 );
 
-// Test connection
-(async () => {
-  try {
-    if (process.env.NODE_ENV !== 'production') {
-      console.log("🚀 Attempting to connect to database...");
-      console.log(`Host: ${process.env.DB_HOST}`);
-      console.log(`Database: ${process.env.DB_NAME}`);
-      console.log(`User: ${process.env.DB_USER}`);
-      console.log(`SSL Required: ${isAiven ? "✅ Yes" : "❌ No"}`);
-    }
-
-    await sequelize.authenticate();
-    if (process.env.NODE_ENV !== 'production') {
+// Test connection with retries
+const connectWithRetry = async (retries = 5) => {
+  while (retries) {
+    try {
+      await sequelize.authenticate();
       console.log("✅ Database connection established successfully.");
+      await sequelize.sync({ alter: false });
+      console.log("✅ Models synchronized successfully.");
+      return;
+    } catch (error) {
+      console.error("❌ DB connection failed:", error.message);
+      retries -= 1;
+      if (!retries) {
+        console.error("⛔ Giving up after multiple retries.");
+        process.exit(1);
+      }
+      console.log(`🔄 Retrying in 5s... (${retries} retries left)`);
+      await new Promise((res) => setTimeout(res, 5000));
     }
-
-    await sequelize.sync({ force: false });
-    if (process.env.NODE_ENV !== 'production') {
-      console.log("✅ All models synchronized successfully.");
-    }
-  } catch (error) {
-    console.error("❌ Unable to connect to database:", error.message);
-    console.error("Error code:", error.original?.code);
   }
-})();
+};
+connectWithRetry();
 
-// Models
+// Import Models
 import UserModel from "./models/User.js";
 import VideoModel from "./models/Video.js";
 import VideoLikeModel from "./models/VideoLike.js";
@@ -86,7 +90,7 @@ const Comment = CommentModel(sequelize, DataTypes);
 const Subscription = SubscriptionModel(sequelize, DataTypes);
 const View = ViewModel(sequelize, DataTypes);
 
-// Relationships
+// Define relationships
 Video.belongsTo(User, { foreignKey: "userId" });
 User.belongsToMany(Video, { through: VideoLike, foreignKey: "userId" });
 Video.belongsToMany(User, { through: VideoLike, foreignKey: "videoId" });
@@ -97,7 +101,7 @@ User.hasMany(Subscription, { foreignKey: "subscribeTo" });
 User.belongsToMany(Video, { through: View, foreignKey: "userId" });
 Video.belongsToMany(User, { through: View, foreignKey: "videoId" });
 
-// Create admin
+// Admin auto-creation
 (async () => {
   try {
     const adminExists = await User.findOne({
@@ -105,8 +109,10 @@ Video.belongsToMany(User, { through: View, foreignKey: "videoId" });
     });
     if (!adminExists) {
       const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(process.env.ADMIN_DEFAULT_PASS, salt);
-
+      const hashedPassword = await bcrypt.hash(
+        process.env.ADMIN_DEFAULT_PASS || "admin123",
+        salt
+      );
       await User.create({
         firstname: "Admin",
         lastname: "User",
@@ -115,15 +121,10 @@ Video.belongsToMany(User, { through: View, foreignKey: "videoId" });
         password: hashedPassword,
         isAdmin: true,
       });
-
-      if (process.env.NODE_ENV !== 'production') {
-        console.log("✅ Admin user created (admin@movie.com / admin123)");
-      }
+      console.log("✅ Default admin created: admin@movie.com / admin123");
     }
-  } catch (error) {
-    if (process.env.NODE_ENV !== 'production') {
-      console.error("❌ Error creating admin user:", error.message);
-    }
+  } catch (err) {
+    console.error("⚠️ Admin creation failed:", err.message);
   }
 })();
 
