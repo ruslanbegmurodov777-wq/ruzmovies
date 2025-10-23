@@ -6,9 +6,9 @@
   "main": "server.js",
   "scripts": {
     "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
-    "dev:server": "nodemon server.js",
+    "dev:server": "cross-env NODE_ENV=development nodemon server.js",
     "dev:client": "npm start --prefix frontend",
-    "build": "npm run build --prefix frontend",
+    "build": "npm install --prefix frontend && npm run build --prefix frontend",
     "start": "cross-env NODE_ENV=production node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -36,11 +36,9 @@
     "jsonwebtoken": "^9.0.2",
     "multer": "^2.0.2",
     "mysql2": "^3.15.2",
-    "node-fetch": "^3.3.2",
     "pg": "^8.16.3",
     "pg-hstore": "^2.3.4",
     "sequelize": "^6.37.7",
-    "react-scripts": "^5.0.1",
     "web-vitals": "^5.1.0"
   }
 }
