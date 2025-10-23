@@ -1,24 +1,22 @@
 {
-  "name": "ruzmovie-backend",
+  "name": "ruzmovie",
   "version": "1.0.0",
-  "description": "Youtube clone backend using Express + Sequelize",
+  "description": "Full-stack RuzMovie app (React + Express + Sequelize)",
   "type": "module",
-  "main": "src/server.js",
+  "main": "server.js",
   "scripts": {
-    "start": "node src/server.js",
-    "dev": "cross-env NODE_ENV=development nodemon src/server.js",
-    "init-db": "cross-env NODE_ENV=development node src/initDatabase.js",
-    "build": "npm install --prefix ../frontend && npm run build --prefix ../frontend",
-    "test-connection": "node testDeployedConnection.js",
-    "test-videos": "node testVideosEndpoint.js",
-    "test-jwt": "node testJwtSecret.js",
-    "test-jwt-token": "node testJwtToken.js",
-    "generate-jwt-secret": "node generateJwtSecret.js"
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "dev:server": "cross-env NODE_ENV=development nodemon server.js",
+    "dev:client": "npm start --prefix frontend",
+    "build": "npm install --prefix frontend && npm run build --prefix frontend",
+    "start": "cross-env NODE_ENV=production node server.js",
+    "init-db": "cross-env NODE_ENV=development node backend/src/initDatabase.js",
+    "test-connection": "node backend/src/testDeployedConnection.js",
+    "test-videos": "node backend/src/testVideosEndpoint.js"
   },
-  "author": "Ruslanbek Begmurodov",
-  "license": "MIT",
   "dependencies": {
     "bcryptjs": "^2.4.3",
+    "concurrently": "^8.2.2",
     "cors": "^2.8.5",
     "cross-env": "^7.0.3",
     "dotenv": "^16.4.5",
@@ -33,5 +31,7 @@
   },
   "devDependencies": {
     "nodemon": "^3.1.0"
-  }
+  },
+  "author": "Ruslanbek Begmurodov",
+  "license": "MIT"
 }
