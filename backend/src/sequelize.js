@@ -4,41 +4,42 @@ import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
 
-// Resolve directory
+// __dirname olish
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Load .env (root-level)
-dotenv.config({ path: path.resolve(__dirname, "../.env") });
+// .env yuklash
+dotenv.config({ path: path.resolve(__dirname, "../../.env") });
 
-// Detect if Aiven MySQL (needs SSL)
+// Aiven SSL ulanishini aniqlash
 const isAiven = process.env.DB_HOST?.includes("aivencloud.com");
 
-// Create Sequelize instance
+// Sequelize sozlamalari
 const sequelize = new Sequelize(
-  process.env.DB_NAME,
-  process.env.DB_USER,
-  process.env.DB_PASS,
+  process.env.DB_NAME || "defaultdb",
+  process.env.DB_USER || "avnadmin",
+  process.env.DB_PASS || "",
   {
-    host: process.env.DB_HOST,
-    port: process.env.DB_PORT,
+    host: process.env.DB_HOST || "mysql-176744c3-ruzmovie.b.aivencloud.com",
+    port: process.env.DB_PORT || 22011,
     dialect: process.env.DB_DIALECT || "mysql",
     logging: false,
+
     dialectOptions: {
       ssl: isAiven
         ? {
             require: true,
             rejectUnauthorized: false,
           }
-        : undefined,
-      connectTimeout: 90000, // 90s timeout
+        : false,
+      connectTimeout: 120000, // 120s — Render’da sekin tarmoqlar uchun
     },
+
     pool: {
-      max: 10,
-      min: 2,
-      acquire: 120000, // wait up to 2 min
-      idle: 20000,
-      evict: 10000,
+      max: 5,
+      min: 0,
+      acquire: 120000,
+      idle: 10000,
     },
     retry: {
       match: [
@@ -47,35 +48,23 @@ const sequelize = new Sequelize(
         /ECONNRESET/,
         /SequelizeConnectionError/,
       ],
-      max: 5, // Retry 5 times
+      max: 5,
     },
   }
 );
 
-// Test connection with retries
-const connectWithRetry = async (retries = 5) => {
-  while (retries) {
-    try {
-      await sequelize.authenticate();
-      console.log("✅ Database connection established successfully.");
-      await sequelize.sync({ alter: false });
-      console.log("✅ Models synchronized successfully.");
-      return;
-    } catch (error) {
-      console.error("❌ DB connection failed:", error.message);
-      retries -= 1;
-      if (!retries) {
-        console.error("⛔ Giving up after multiple retries.");
-        process.exit(1);
-      }
-      console.log(`🔄 Retrying in 5s... (${retries} retries left)`);
-      await new Promise((res) => setTimeout(res, 5000));
-    }
+// Ulanishni test qilish
+(async () => {
+  try {
+    console.log("🔌 Connecting to database...");
+    await sequelize.authenticate();
+    console.log("✅ Database connected successfully.");
+  } catch (error) {
+    console.error("❌ Database connection failed:", error.message);
   }
-};
-connectWithRetry();
+})();
 
-// Import Models
+// Modellarni import qilish
 import UserModel from "./models/User.js";
 import VideoModel from "./models/Video.js";
 import VideoLikeModel from "./models/VideoLike.js";
@@ -83,6 +72,7 @@ import CommentModel from "./models/Comment.js";
 import SubscriptionModel from "./models/Subscription.js";
 import ViewModel from "./models/View.js";
 
+// Model yaratish
 const User = UserModel(sequelize, DataTypes);
 const Video = VideoModel(sequelize, DataTypes);
 const VideoLike = VideoLikeModel(sequelize, DataTypes);
@@ -90,43 +80,12 @@ const Comment = CommentModel(sequelize, DataTypes);
 const Subscription = SubscriptionModel(sequelize, DataTypes);
 const View = ViewModel(sequelize, DataTypes);
 
-// Define relationships
+// Aloqalarni o‘rnatish
 Video.belongsTo(User, { foreignKey: "userId" });
-User.belongsToMany(Video, { through: VideoLike, foreignKey: "userId" });
-Video.belongsToMany(User, { through: VideoLike, foreignKey: "videoId" });
-User.hasMany(Comment, { foreignKey: "userId" });
-Comment.belongsTo(User, { foreignKey: "userId" });
+User.hasMany(Video, { foreignKey: "userId" });
 Video.hasMany(Comment, { foreignKey: "videoId" });
-User.hasMany(Subscription, { foreignKey: "subscribeTo" });
-User.belongsToMany(Video, { through: View, foreignKey: "userId" });
-Video.belongsToMany(User, { through: View, foreignKey: "videoId" });
-
-// Admin auto-creation
-(async () => {
-  try {
-    const adminExists = await User.findOne({
-      where: { email: "admin@movie.com" },
-    });
-    if (!adminExists) {
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(
-        process.env.ADMIN_DEFAULT_PASS || "admin123",
-        salt
-      );
-      await User.create({
-        firstname: "Admin",
-        lastname: "User",
-        username: "admin",
-        email: "admin@movie.com",
-        password: hashedPassword,
-        isAdmin: true,
-      });
-      console.log("✅ Default admin created: admin@movie.com / admin123");
-    }
-  } catch (err) {
-    console.error("⚠️ Admin creation failed:", err.message);
-  }
-})();
+Comment.belongsTo(User, { foreignKey: "userId" });
+Comment.belongsTo(Video, { foreignKey: "videoId" });
 
 export { sequelize, User, Video, VideoLike, Comment, Subscription, View };
 export default sequelize;

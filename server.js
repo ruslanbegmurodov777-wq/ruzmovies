@@ -29,7 +29,10 @@ if (process.env.NODE_ENV === "production") {
       }
     });
   } else {
-    console.warn("⚠️ frontend/build/index.html not found. Did you run 'npm run build'?", { indexHtml });
+    console.warn(
+      "⚠️ frontend/build/index.html not found. Did you run 'npm run build'?",
+      { indexHtml }
+    );
   }
 }
 
@@ -44,7 +47,9 @@ const PORT = process.env.PORT || 5000;
     console.error("❌ DB connection failed:", err.message);
   }
 
-  app.listen(PORT, () => {
+  const PORT = process.env.PORT || 5000;
+
+  app.listen(PORT, "0.0.0.0", () => {
     console.log(`✅ Server running on port ${PORT}`);
   });
 })();
