@@ -6,7 +6,6 @@ import {
   getYouTubeThumbnail,
 } from "../utils/videoUtils";
 import { useStarred } from "../contexts/StarredContext";
-import api from "../utils/api"; // Import the configured api instance
 import "./VideoCard.css";
 
 const VideoCard = React.memo(({ video }) => {
@@ -22,9 +21,8 @@ const VideoCard = React.memo(({ video }) => {
     
     // For file uploads with thumbnail files, use the thumbnail file URL
     if (video.thumbnailFileUrl) {
-      // Construct the full URL using the API base URL
-      const baseURL = api.defaults.baseURL || '';
-      return `${baseURL}${video.thumbnailFileUrl}`;
+      // Use provided API path directly (it's already /api/v1/...)
+      return video.thumbnailFileUrl;
     }
     
     // For URL uploads or videos with thumbnail URLs, use the thumbnail property
@@ -152,6 +150,10 @@ const VideoCard = React.memo(({ video }) => {
               src={thumbnailUrl}
               alt={video.title}
               className="thumbnail-image"
+              loading="lazy"
+              decoding="async"
+              fetchPriority="low"
+              sizes="(max-width: 600px) 50vw, (max-width: 1200px) 33vw, 25vw"
               onError={(e) => {
                 e.target.src = "/placeholder-thumbnail.jpg";
               }}

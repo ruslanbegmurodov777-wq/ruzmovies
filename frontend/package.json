@@ -8,7 +8,7 @@
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.23.0",
     "react-scripts": "5.0.1",
-    "ruzmovie-backend": "file:../backend",
+    "ruzmovie": "file:..",
     "web-vitals": "^4.1.0"
   },
   "homepage": "/",

@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
+
 import { useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import api from "../utils/api"; // Import the configured api instance
@@ -15,6 +16,9 @@ const Search = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  // Debounce timer ref to avoid firing requests on every keystroke
+  const debounceRef = useRef(null);
+
   const performSearch = useCallback(async () => {
     try {
       setLoading(true);
@@ -24,7 +28,7 @@ const Search = () => {
       );
       setVideos(response.data.data || []);
     } catch (error) {
-      console.error("Error searching videos:", error);
+      // Silence noisy errors in UI; log once for debugging
       setError("Failed to search videos");
     } finally {
       setLoading(false);
@@ -32,11 +36,24 @@ const Search = () => {
   }, [searchTerm]);
 
   useEffect(() => {
-    if (searchTerm && isAuthenticated) {
-      performSearch();
-    } else if (!isAuthenticated) {
+    // Require minimal length to avoid expensive queries and noise
+    if (!isAuthenticated) {
       setError("Please login to search videos");
+      return;
     }
+    if (!searchTerm || searchTerm.trim().length < 2) {
+      setVideos([]);
+      setError(null);
+      return;
+    }
+
+    // Debounce actual request to reduce API spam while typing
+    clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      performSearch();
+    }, 300);
+
+    return () => clearTimeout(debounceRef.current);
   }, [searchTerm, isAuthenticated, performSearch]);
 
   if (!isAuthenticated) {

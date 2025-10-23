@@ -2,9 +2,8 @@
 import axios from "axios";
 
 // Create an axios instance
-// Use proxy in development, Render backend URL in production
-const isDevelopment = process.env.NODE_ENV === 'development';
-const baseURL = isDevelopment ? "/api/v1" : "https://your-render-app-name.onrender.com/api/v1";
+// Unified deployment: always hit same-origin backend
+const baseURL = "/api/v1";
 
 const api = axios.create({
   baseURL: baseURL,
@@ -40,17 +39,31 @@ api.interceptors.response.use(
 );
 
 /**
- * Fetch all videos
+ * Fetch videos with pagination and simple in-memory cache
+ * @param {Object} params
+ * @param {number} params.page
+ * @param {number} params.limit
+ * @param {string} [params.category]
  * @returns {Promise<Array>} Array of video objects
  */
-export const fetchVideos = async () => {
+const __videosCache = new Map(); // key: `${page}:${limit}:${category||''}` -> { t, data }
+const __VIDEOS_TTL_MS = 60 * 1000; // 1 minute
+
+export const fetchVideos = async ({ page = 1, limit = 12, category } = {}) => {
+  const key = `${page}:${limit}:${category || ''}`;
+  const cached = __videosCache.get(key);
+  if (cached && Date.now() - cached.t < __VIDEOS_TTL_MS) {
+    return cached.data;
+  }
   try {
-    const response = await api.get("/videos");
-    // Ensure we return an array even if response.data.data is not an array
-    return Array.isArray(response.data.data) ? response.data.data : [];
+    const params = { page, limit };
+    if (category && category !== 'all') params.category = category;
+    const response = await api.get("/videos", { params });
+    const data = Array.isArray(response.data.data) ? response.data.data : [];
+    __videosCache.set(key, { t: Date.now(), data });
+    return data;
   } catch (error) {
     console.error("Error fetching videos:", error);
-    // Return empty array on error
     return [];
   }
 };

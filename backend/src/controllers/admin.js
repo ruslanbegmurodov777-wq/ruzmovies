@@ -38,7 +38,28 @@ export const removeVideo = asyncHandler(async (req, res, next) => {
 
 export const getVideos = asyncHandler(async (req, res, next) => {
   const videos = await Video.findAll({
-    attributes: ["id", "title", "description", "url", "thumbnail", "featured", "userId", "category", "uploadType", "fileName", "fileSize", "mimeType"],
+    attributes: [
+      "id",
+      "title",
+      "description",
+      "url",
+      "thumbnail",
+      "thumbnailFileSize",
+      "featured",
+      "userId",
+      "category",
+      "uploadType",
+      "fileName",
+      "fileSize",
+      "mimeType",
+    ],
+  });
+
+  // Attach thumbnailFileUrl for file uploads where a thumbnail exists
+  videos.forEach((video) => {
+    if (video.uploadType === 'file' && video.thumbnailFileSize) {
+      video.setDataValue("thumbnailFileUrl", `/api/v1/videos/${video.id}/thumbnail`);
+    }
   });
 
   res.status(200).json({ success: true, data: videos });

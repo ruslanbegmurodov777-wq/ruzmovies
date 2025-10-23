@@ -20,6 +20,15 @@ const upload = multer();
 
 const router = express.Router();
 
+// Optional pagination middleware (limit/offset) — consumed by controllers if supported
+router.use((req, _res, next) => {
+  const limit = Math.min(parseInt(req.query.limit, 10) || 12, 50);
+  const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
+  const offset = (page - 1) * limit;
+  req.pagination = { limit, offset, page };
+  next();
+});
+
 router.route("/").post(
   protect,
   // Faqat foydalanuvchi autentifikatsiya qilingan bo'lsa yetarli
@@ -32,8 +41,16 @@ router.route("/").post(
 router.route("/").get(recommendedVideos);
 router.route("/search").get(optionalAuth, searchVideo);
 router.route("/:id").get(optionalAuth, getVideo);
-router.route("/:id/file").get(getVideoFile); // New route for serving video files
-router.route("/:id/thumbnail").get(getThumbnailFile); // New route for serving thumbnail files
+
+// Cache static-like assets aggressively
+const setAssetCache = (_req, res, next) => {
+  res.set("Cache-Control", "public, max-age=31536000, immutable");
+  next();
+};
+
+router.route("/:id/file").get(setAssetCache, getVideoFile); // New route for serving video files
+router.route("/:id/thumbnail").get(setAssetCache, getThumbnailFile); // New route for serving thumbnail files
+
 router.route("/:id/like").get(protect, likeVideo);
 router.route("/:id/dislike").get(protect, dislikeVideo);
 router.route("/:id/comment").post(protect, addComment);

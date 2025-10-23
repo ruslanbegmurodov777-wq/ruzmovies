@@ -1,14 +1,13 @@
 .header {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(25px);
-  box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.1),
-    0 4px 16px rgba(59, 130, 246, 0.05),
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1), 0 4px 16px rgba(59, 130, 246, 0.05),
     0 0 0 1px rgba(255, 255, 255, 0.2);
   position: sticky;
   top: 0;
   z-index: 100;
   border-bottom: 1px solid rgba(59, 130, 246, 0.1);
+  overflow-x: hidden; /* prevent off-canvas from causing horizontal scroll */
+  --header-height: 64px; /* default header height used for mobile drawer offset */
 }
 
 .header-container {
@@ -42,7 +41,7 @@
   font-size: 2rem;
   font-weight: bold;
   margin: 0;
-  text-decoration: none;
+  text-decoration: none !important;
   transition: all 0.3s ease;
 }
 
@@ -50,6 +49,14 @@
   color: #b8070f;
   text-shadow: 0 2px 6px rgba(229, 9, 20, 0.4);
   transform: scale(1.05);
+}
+
+/* Prevent underline on the logo link regardless of global link hover rules */
+.logo,
+.logo:hover,
+.logo:focus,
+.logo:active {
+  text-decoration: none !important;
 }
 
 .home-icon {
@@ -466,7 +473,7 @@ body.dark-theme .hamburger-line {
   }
 
   .search-form {
-    margin: 0;
+    margin: 0 0.25rem 0 0; /* add slight space before hamburger */
     flex: 1;
     min-width: 0;
     max-width: none;
@@ -480,6 +487,8 @@ body.dark-theme .hamburger-line {
   .search-button {
     padding: 0.6rem 1rem;
     font-size: 14px;
+    position: relative;
+    z-index: 1; /* keep below hamburger to allow clicks */
   }
 
   .header-right {
@@ -545,6 +554,9 @@ body.dark-theme .hamburger-line {
 
   .mobile-menu-toggle {
     display: flex;
+    position: relative;
+    z-index: 10010; /* above search and inputs for reliable tapping */
+    margin-left: 4px;
   }
 
   .nav {
@@ -553,56 +565,104 @@ body.dark-theme .hamburger-line {
 
   .mobile-nav {
     display: block;
-    position: absolute;
-    top: 100%;
-    right: -100%;
-    width: 200px;
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    left: auto;
+    transform: translateY(-6px) scale(0.96);
+    width: min(80vw, 260px);
+    max-width: 260px;
     height: auto;
-    max-height: 400px;
+    max-height: calc(100dvh - 24px);
     background-color: #fff;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-    transition: right 0.3s ease;
-    z-index: 1000;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+    transition: opacity 0.16s ease, transform 0.16s ease;
+    will-change: opacity, transform;
+    opacity: 0;
+    pointer-events: none; /* hidden by default */
+    z-index: 10000; /* above header content and other high z-index elements */
     justify-content: flex-start;
-    border-radius: 0 0 15px 15px;
-    overflow: hidden;
-    margin-top: 5px;
+    border-radius: 12px;
+    overflow: hidden; /* absolutely no inner scroll */
+    padding: 8px;
+  }
+  /* small caret arrow pointing up-right */
+  .mobile-nav::before {
+    content: "";
+    position: absolute;
+    top: -6px;
+    right: 22px;
+    width: 12px;
+    height: 12px;
+    background: inherit;
+    border-left: 1px solid rgba(0,0,0,0.08);
+    border-top: 1px solid rgba(0,0,0,0.08);
+    transform: rotate(45deg);
+    z-index: -1;
   }
 
   /* Dark theme mobile nav */
   body.dark-theme .mobile-nav {
     background-color: rgba(15, 23, 42, 0.98);
-    /* backdrop-filter: blur(20px); */
-    border-left: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: -2px 0 20px rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
   }
 
   .nav-open {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* Overlay behind the floating panel */
+  .nav-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
     right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.25);
+    z-index: 9990;
   }
 
   .nav-content {
     flex-direction: column;
-    align-items: flex-start;
-    gap: 0;
-    padding: 20px 15px;
+    align-items: stretch; /* items take full width for straight line */
+    gap: 6px;
+    padding: 6px 6px 8px;
     width: 100%;
+    overflow: hidden;
   }
 
-  .nav-link {
+  /* Unify all items to a single straight-line style */
+  .mobile-nav .nav-link,
+  .mobile-nav .logout-btn,
+  .mobile-nav .admin-link,
+  .mobile-nav .profile-link,
+  .mobile-nav .history-link,
+  .mobile-nav .starred-link {
+    display: block;
     width: 100%;
-    padding: 12px 8px;
-    border-bottom: 1px solid #eee;
-    border-radius: 6px;
-    margin-bottom: 4px;
+    padding: 7px 9px;
+    border: 1px solid #e6e6e6;
+    border-radius: 10px;
+    margin: 0;
     text-align: left;
-    font-size: 15px;
+    font-size: 13px;
+    line-height: 1.2;
     transition: all 0.2s ease;
+    background: transparent;
   }
 
-  .nav-link:hover {
-    background-color: #f0f0f0;
-    border-bottom-color: transparent;
+  .mobile-nav .nav-link:hover,
+  .mobile-nav .logout-btn:hover,
+  .mobile-nav .admin-link:hover,
+  .mobile-nav .profile-link:hover,
+  .mobile-nav .history-link:hover,
+  .mobile-nav .starred-link:hover {
+    background-color: #f7f7f7;
+    border-color: #f0f0f0;
   }
 
   /* Dark theme nav link hover */
@@ -613,6 +673,23 @@ body.dark-theme .hamburger-line {
 
   body.dark-theme .nav-link:hover {
     background-color: rgba(51, 65, 85, 0.5);
+  }
+
+  /* Ensure theme toggle row stays in a single line */
+  .mobile-theme-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    width: 100%;
+    padding: 6px 8px;
+    border: 1px solid #e6e6e6;
+    border-radius: 10px;
+    background: transparent;
+  }
+
+  body.dark-theme .mobile-theme-toggle {
+    border-color: rgba(255, 255, 255, 0.12);
   }
 
   .admin-link {
@@ -659,7 +736,7 @@ body.dark-theme .hamburger-line {
     text-align: left;
     padding: 12px 8px;
     border-radius: 6px;
-    margin-bottom: 4px;
+    margin-bottom: 12px; /* ensure it isn't clipped at the bottom */
     transition: all 0.2s ease;
   }
 
@@ -673,9 +750,27 @@ body.dark-theme .hamburger-line {
     background: #dc2626;
   }
 
-  body.dark-theme .logout-btn:hover {
-    background-color: #b91c1c;
+  /* Normalize special styles inside floating mobile menu */
+  .mobile-nav .admin-link {
+    background: transparent !important;
+    color: inherit !important;
+    border: 1px solid #e6e6e6 !important;
   }
+  .mobile-nav .logout-btn {
+    background: transparent !important;
+    color: inherit !important;
+    box-shadow: none !important;
+    transform: none !important;
+  }
+  .mobile-nav .history-link,
+  .mobile-nav .starred-link {
+    border: 1px solid #e6e6e6;
+  }
+  .mobile-nav .logout-btn:hover {
+    background-color: #f7f7f7;
+    border-color: #f0f0f0;
+  }
+
 }
 
 /* Extra small mobile devices (below 390px) */
@@ -688,6 +783,34 @@ body.dark-theme .hamburger-line {
   .logout-btn {
     padding: 10px 6px;
     font-size: 14px;
+  }
+
+  .mobile-nav {
+    width: min(90vw, 280px);
+    right: 14px;
+    top: 12px;
+  }
+
+  .nav-content {
+    padding: 12px 8px;
+  }
+
+  .nav-link {
+    padding: 8px 4px;
+    font-size: 13px;
+  }
+
+  .logout-btn {
+    padding: 8px 4px;
+    font-size: 13px;
+  }
+
+  .mobile-theme-toggle {
+    padding: 8px 4px;
+  }
+
+  .theme-label {
+    font-size: 12px;
   }
 }
 
@@ -747,33 +870,6 @@ body.dark-theme .hamburger-line {
     height: 2px;
     margin: 1.5px 0;
   }
-
-  .mobile-nav {
-    width: 160px;
-    right: -160px;
-  }
-
-  .nav-content {
-    padding: 12px 8px;
-  }
-
-  .nav-link {
-    padding: 8px 4px;
-    font-size: 13px;
-  }
-
-  .logout-btn {
-    padding: 8px 4px;
-    font-size: 13px;
-  }
-
-  .mobile-theme-toggle {
-    padding: 8px 4px;
-  }
-
-  .theme-label {
-    font-size: 12px;
-  }
 }
 
 /* Very small screens (below 320px) - extreme mobile optimization */
@@ -816,8 +912,9 @@ body.dark-theme .hamburger-line {
   }
 
   .mobile-nav {
-    width: 140px;
-    right: -140px;
+    width: min(92vw, 260px);
+    right: 10px;
+    top: 10px;
   }
 
   .nav-content {

@@ -194,6 +194,8 @@ export const getVideo = asyncHandler(async (req, res, next) => {
   }
 
   const video = await Video.findByPk(req.params.id, {
+    // Exclude large BLOB fields from the main JSON payload
+    attributes: { exclude: ["videoFile", "thumbnailFile"] },
     include: [
       {
         model: User,
@@ -209,16 +211,13 @@ export const getVideo = asyncHandler(async (req, res, next) => {
     });
   }
 
-  // Log video data for debugging
-  console.log("Video data:", JSON.stringify(video.toJSON(), null, 2));
-
   // For file uploads, provide URLs to access the files
   if (video.uploadType === 'file') {
     // Set URL for video file
     video.setDataValue("videoFileUrl", `/api/v1/videos/${video.id}/file`);
     
     // Set URL for thumbnail file if it exists
-    if (video.thumbnailFile) {
+    if (video.thumbnailFileSize) {
       video.setDataValue("thumbnailFileUrl", `/api/v1/videos/${video.id}/thumbnail`);
     }
   }
@@ -497,9 +496,6 @@ export const searchVideo = asyncHandler(async (req, res, next) => {
 
   if (!videos.length)
     return res.status(200).json({ success: true, data: videos });
-
-  // Log video data for debugging
-  console.log("Search results:", JSON.stringify(videos.map(v => v.toJSON()), null, 2));
 
   // Optimize view count fetching with Promise.all
   await Promise.all(videos.map(async (video) => {

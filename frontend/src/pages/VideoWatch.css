@@ -6,13 +6,18 @@
 
 .video-player-container {
   margin-bottom: 2rem;
+  display: flex;
+  justify-content: center;
 }
 
 .video-player {
   width: 100%;
-  max-height: 600px;
+  height: auto;
+  max-height: 80vh; /* keep inside viewport */
   border-radius: 12px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  object-fit: contain; /* preserve aspect ratio; letterbox if needed */
+  background: #000; /* letterbox color */
 }
 
 .video-player-error {
@@ -33,6 +38,16 @@
 .direct-player {
   border-radius: 12px;
   overflow: hidden;
+}
+
+/* Ensure iframes also respect viewport height and aspect ratio */
+.youtube-player,
+.vimeo-player {
+  width: 100%;
+  height: auto;
+  max-height: 80vh;
+  aspect-ratio: 16 / 9; /* reasonable default */
+  background: #000;
 }
 
 .video-content {
@@ -428,11 +443,26 @@ body.dark-theme .error {
 .comment-author {
   font-weight: 600;
   color: #333;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .comment-date {
   color: #666;
   font-size: 0.85rem;
+}
+
+/* Small user icon next to commenter name */
+.comment-user-icon {
+  width: 14px;
+  height: 14px;
+  fill: currentColor;
+  opacity: 0.85;
+}
+
+@media (max-width: 768px) {
+  .comment-user-icon { width: 12px; height: 12px; }
 }
 
 .comment-text {

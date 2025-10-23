@@ -201,7 +201,12 @@ const AdminPanel = () => {
     <div className="admin-panel card-ocean-effect">
       <div className="admin-container">
         <div className="admin-header">
-          <h1>🎛️ Admin Control Panel</h1>
+          <h1>
+            🎛️ Admin Control Panel
+            <span className="mini-stat">
+              🎬 {stats.totalVideos}
+            </span>
+          </h1>
           <Link to="/upload" className="upload-link">
             ➕ Upload New Video
           </Link>
@@ -209,31 +214,6 @@ const AdminPanel = () => {
 
         {error && <div className="error-message">{error}</div>}
         {success && <div className="success-message">{success}</div>}
-
-        {/* Stats Dashboard */}
-        <div className="admin-stats">
-          <div className="stat-card">
-            <div className="stat-icon">👥</div>
-            <div className="stat-content">
-              <div className="stat-number">{stats.totalUsers}</div>
-              <div className="stat-label">Total Users</div>
-            </div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-icon">🎬</div>
-            <div className="stat-content">
-              <div className="stat-number">{stats.totalVideos}</div>
-              <div className="stat-label">Total Videos</div>
-            </div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-icon">👁️</div>
-            <div className="stat-content">
-              <div className="stat-number">{stats.totalViews}</div>
-              <div className="stat-label">Total Views</div>
-            </div>
-          </div>
-        </div>
 
         <div className="admin-tabs">
           <button
@@ -277,9 +257,10 @@ const AdminPanel = () => {
                         <tr key={video.id}>
                           <td>
                             <img
-                              src={video.thumbnailFileUrl ? `${api.defaults.baseURL}${video.thumbnailFileUrl}` : video.thumbnail || "/placeholder-thumbnail.jpg"}
+                              src={video.thumbnailFileUrl || video.thumbnail || "/placeholder-thumbnail.jpg"}
                               alt={video.title}
                               className="video-thumb"
+                              loading="lazy"
                               onError={(e) => {
                                 e.target.src = "/placeholder-thumbnail.jpg";
                               }}

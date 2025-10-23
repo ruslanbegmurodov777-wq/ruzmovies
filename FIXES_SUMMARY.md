@@ -61,7 +61,44 @@ In Express 5, wildcard patterns like `*` and `/*` are no longer valid because th
 ### Files Modified
 1. [backend/src/server.js](file:///C:/Users/user/Desktop/Ruzmovie/backend/src/server.js) - Fixed Express 5 path pattern issue
 
-## 4. **Environment Variable Loading**
+## 4. **Missing Icon Files Issue**
+
+### Problem
+The application was trying to load icon files that didn't exist or were empty, causing 404 errors and manifest validation errors.
+
+### Root Cause
+The frontend was referencing image files that were either missing or empty (0KB).
+
+### Fix
+1. Updated index.html to reference the existing favicon.ico file instead of missing SVG files
+2. Updated manifest.json to remove references to missing icon files
+3. Removed references to non-existent preview images
+
+### Files Modified
+1. [frontend/public/index.html](file:///C:/Users/user/Desktop/Ruzmovie/frontend/public/index.html) - Fixed icon references
+2. [frontend/public/manifest.json](file:///C:/Users/user/Desktop/Ruzmovie/frontend/public/manifest.json) - Removed missing icon references
+
+## 5. **CORS Configuration Issue**
+
+### Problem
+The frontend was getting CORS errors when trying to make API requests to the backend:
+"Access to XMLHttpRequest at 'https://your-render-app-name.onrender.com/api/v1/auth/login' from origin 'https://68f37c6c8aeddedab423215b--ruzmovies.netlify.app' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header is present on the requested resource."
+
+### Root Cause
+1. The frontend was still using placeholder URLs instead of actual deployment URLs
+2. The backend CORS configuration was not allowing the specific Netlify deployment URL
+
+### Fix
+1. Updated the frontend API configuration to use environment variables for the backend URL
+2. Enhanced the backend CORS configuration to allow Netlify deployment URLs
+3. Updated the render.yaml configuration with proper environment variables
+
+### Files Modified
+1. [frontend/src/utils/api.js](file:///C:/Users/user/Desktop/Ruzmovie/frontend/src/utils/api.js) - Updated API configuration to use environment variables
+2. [backend/src/server.js](file:///C:/Users/user/Desktop/Ruzmovie/backend/src/server.js) - Enhanced CORS configuration
+3. [render.yaml](file:///C:/Users/user/Desktop/Ruzmovie/render.yaml) - Updated environment variables
+
+## 6. **Environment Variable Loading**
 
 ### Problem
 Environment variables were not consistently loaded across different deployment environments.
@@ -72,7 +109,7 @@ Updated server.js to properly load environment variables from the backend root d
 ### Files Modified
 1. [backend/src/server.js](file:///C:/Users/user/Desktop/Ruzmovie/backend/src/server.js) - Improved environment variable loading
 
-## 5. **Separated Deployment Configuration**
+## 7. **Separated Deployment Configuration**
 
 ### Problem
 The application was designed primarily for unified Netlify deployment, but users needed separated frontend/backend deployment options.
@@ -88,7 +125,7 @@ Created comprehensive guide for separated deployment with frontend on Netlify an
 5. [backend/src/server.js](file:///C:/Users/user/Desktop/Ruzmovie/backend/src/server.js) - Updated CORS configuration
 6. [frontend/src/utils/api.js](file:///C:/Users/user/Desktop/Ruzmovie/frontend/src/utils/api.js) - Updated API configuration
 
-## 6. **Database Connection Improvements**
+## 8. **Database Connection Improvements**
 
 ### Problem
 Database connection configuration was not clearly documented for different environments.
@@ -99,18 +136,6 @@ Improved database setup documentation with clear examples for local and producti
 ### Files Modified
 1. [DATABASE_SETUP.md](file:///C:/Users/user/Desktop/Ruzmovie/DATABASE_SETUP.md) - Enhanced documentation
 2. [backend/src/sequelize.js](file:///C:/Users/user/Desktop/Ruzmovie/backend/src/sequelize.js) - Improved configuration
-
-## 7. **CORS Configuration**
-
-### Problem
-CORS configuration was not flexible enough for different deployment scenarios.
-
-### Fix
-Enhanced CORS configuration to support multiple origins including separated frontend/backend deployments.
-
-### Files Modified
-1. [backend/src/server.js](file:///C:/Users/user/Desktop/Ruzmovie/backend/src/server.js) - Updated CORS configuration
-2. [backend/src/serverless.js](file:///C:/Users/user/Desktop/Ruzmovie/backend/src/serverless.js) - Updated CORS configuration
 
 ## Testing the Fixes
 
@@ -155,5 +180,6 @@ After implementing these fixes, verify your deployment by:
 3. Verifying JWT token creation and verification
 4. Testing frontend-backend communication
 5. Confirming CORS is properly configured
+6. Verifying that all icon files are properly loaded
 
-These fixes should resolve the common JWT error, the 500 error when logging in, and the Express 5 path pattern issue, providing a more robust deployment process for the Ruzmovie application.
+These fixes should resolve the common JWT error, the 500 error when logging in, the Express 5 path pattern issue, the missing icon files issue, and the CORS configuration issue, providing a more robust deployment process for the Ruzmovie application.

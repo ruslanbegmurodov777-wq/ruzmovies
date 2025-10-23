@@ -1,9 +1,9 @@
 services:
   - type: web
-    name: ruzmovie-backend
+    name: ruzmovie-fullstack
     env: node
-    buildCommand: npm install
-    startCommand: node backend/src/server.js
+    buildCommand: npm install && npm run build
+    startCommand: npm start
     envVars:
       - key: NODE_ENV
         value: production
@@ -23,14 +23,6 @@ services:
         sync: false
       - key: JWT_EXPIRE
         value: 30d
-      - key: FRONTEND_URL
-        sync: false
-      - key: RENDER_BACKEND_URL
-        sync: false
-      - key: ADMIN_PASSWORD
-        sync: false
-      - key: TEST_USER_PASSWORD
-        sync: false
       - key: PORT
         value: 10000
 

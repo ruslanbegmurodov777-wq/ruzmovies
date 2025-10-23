@@ -4,6 +4,14 @@
   box-sizing: border-box;
 }
 
+/* Prevent background scroll when floating mobile menu is open */
+html.no-scroll,
+body.no-scroll {
+  overflow: hidden !important;
+  height: 100vh;
+  overscroll-behavior: none !important; /* prevent rubber-banding */
+}
+
 body {
   font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background: linear-gradient(135deg, 
@@ -13,7 +21,7 @@ body {
     #94a3b8 75%, 
     #64748b 100%
   );
-  background-attachment: fixed;
+  background-attachment: scroll; /* performance: avoid fixed during scroll */
   color: #1e293b;
   line-height: 1.6;
   transition: all 0.5s cubic-bezier(0.23, 1, 0.320, 1);
@@ -23,6 +31,7 @@ body {
 
 /* Modern light theme enhancements */
 body:not(.dark-theme) {
+  /* Static background (no animation) to improve scroll performance */
   background: linear-gradient(135deg, 
     #87CEEB 0%,
     #ADD8E6 25%, 
@@ -30,8 +39,7 @@ body:not(.dark-theme) {
     #87CEFA 75%, 
     #6CB4EE 100%
   );
-  background-attachment: fixed;
-  animation: skyMovement 12s ease-in-out infinite;
+  background-attachment: scroll; /* avoid fixed paint during scroll */
 }
 
 @keyframes skyMovement {
@@ -188,12 +196,23 @@ select:focus {
   animation: fadeInUp 0.6s ease-out;
 }
 
+/* Respect reduced motion to save battery/CPU */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 /* Glass morphism utility */
 .glass {
   background: rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.1);
 }
 
 /* Dark theme scrollbar */

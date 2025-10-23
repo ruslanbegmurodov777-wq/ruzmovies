@@ -1,5 +1,5 @@
 import { Op } from "sequelize";
-import { VideoLike, Video, User, Subscription, View } from "../sequelize.js";
+import { VideoLike, Video, User, Subscription, View, sequelize } from "../sequelize.js";
 import asyncHandler from "../middlewares/asyncHandler.js";
 
 // Cache for frequently accessed data
@@ -60,7 +60,16 @@ export const getFeed = asyncHandler(async (req, res, next) => {
   const subscriptions = subscribedTo.map((sub) => sub.subscribeTo);
 
   const feed = await Video.findAll({
-    attributes: ["id", "title", "description", "thumbnail", "createdAt", "category"],
+    attributes: [
+      "id",
+      "title",
+      "description",
+      "thumbnail",
+      "thumbnailFileSize",
+      "createdAt",
+      "category",
+      "uploadType",
+    ],
     include: {
       model: User,
       attributes: ["id", "avatar", "username"],
@@ -81,6 +90,10 @@ export const getFeed = asyncHandler(async (req, res, next) => {
   await Promise.all(feed.map(async (video) => {
     const views = await View.count({ where: { videoId: video.id } });
     video.setDataValue("views", views);
+    // Provide thumbnail URL for file uploads
+    if (video.uploadType === 'file' && video.thumbnailFileSize) {
+      video.setDataValue("thumbnailFileUrl", `/api/v1/videos/${video.id}/thumbnail`);
+    }
   }));
 
   res.status(200).json({ success: true, data: feed });
@@ -241,7 +254,15 @@ export const getProfile = asyncHandler(async (req, res, next) => {
 
   const videos = await Video.findAll({
     where: { userId: req.params.id },
-    attributes: ["id", "thumbnail", "title", "createdAt", "category"],
+    attributes: [
+      "id",
+      "thumbnail",
+      "thumbnailFileSize",
+      "title",
+      "createdAt",
+      "category",
+      "uploadType",
+    ],
   });
 
   if (videos.length > 0) {
@@ -249,6 +270,9 @@ export const getProfile = asyncHandler(async (req, res, next) => {
     await Promise.all(videos.map(async (video) => {
       const views = await View.count({ where: { videoId: video.id } });
       video.setDataValue("views", views);
+      if (video.uploadType === 'file' && video.thumbnailFileSize) {
+        video.setDataValue("thumbnailFileUrl", `/api/v1/videos/${video.id}/thumbnail`);
+      }
     }));
   }
 
@@ -261,32 +285,58 @@ export const getProfile = asyncHandler(async (req, res, next) => {
 });
 
 export const recommendedVideos = asyncHandler(async (req, res, next) => {
+  const { limit = 12, offset = 0 } = req.pagination || {};
+  const { category } = req.query || {};
+  const where = {};
+  if (category && category !== 'all') {
+    where.category = category;
+  }
+
   const videos = await Video.findAll({
     attributes: [
       "id",
       "title",
       "description",
       "thumbnail",
+      "thumbnailFileSize",
       "userId",
       "createdAt",
       "category",
       "featured",
+      "uploadType",
     ],
     include: [{ model: User, attributes: ["id", "avatar", "username"] }],
     order: [
       ["featured", "DESC"],
       ["createdAt", "DESC"],
     ],
+    where,
+    limit,
+    offset,
   });
 
   if (!videos.length)
     return res.status(200).json({ success: true, data: videos });
 
-  // Optimize view count fetching with Promise.all
-  await Promise.all(videos.map(async (video) => {
-    const views = await View.count({ where: { videoId: video.id } });
+  // Bulk-fetch view counts in one grouped query to avoid N+1
+  const ids = videos.map(v => v.id);
+  const viewRows = await View.findAll({
+    attributes: [
+      'videoId',
+      [sequelize.fn('COUNT', sequelize.col('videoId')), 'views']
+    ],
+    where: { videoId: ids },
+    group: ['videoId']
+  });
+  const viewMap = new Map(viewRows.map(r => [r.get('videoId'), Number(r.get('views'))]));
+
+  videos.forEach((video) => {
+    const views = viewMap.get(video.id) || 0;
     video.setDataValue("views", views);
-  }));
+    if (video.uploadType === 'file' && video.thumbnailFileSize) {
+      video.setDataValue("thumbnailFileUrl", `/api/v1/videos/${video.id}/thumbnail`);
+    }
+  });
 
   res.status(200).json({ success: true, data: videos });
 });
@@ -345,7 +395,17 @@ const getVideos = async (model, req, res, next) => {
   const videoIds = videoRelations.map((videoRelation) => videoRelation.videoId);
 
   const videos = await Video.findAll({
-    attributes: ["id", "title", "description", "createdAt", "thumbnail", "url", "category"],
+    attributes: [
+      "id",
+      "title",
+      "description",
+      "createdAt",
+      "thumbnail",
+      "thumbnailFileSize",
+      "url",
+      "category",
+      "uploadType",
+    ],
     include: {
       model: User,
       attributes: ["id", "username", "avatar"],

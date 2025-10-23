@@ -20,6 +20,8 @@
   border: 1px solid rgba(70, 130, 180, 0.2);
 }
 
+ 
+
 .video-card:hover {
   transform: translateY(-8px) scale(1.03);
   box-shadow: 
@@ -158,64 +160,52 @@
 }
 
 .video-info {
-  background: linear-gradient(135deg, 
-    #4682B4 0%,
-    #5F9EA0 25%, 
-    #6495ED 50%, 
-    #87CEEB 75%, 
-    #7FB4D4 100%
-  );
-  backdrop-filter: blur(15px);
+  background: transparent;
   border-radius: 0 0 16px 16px;
-  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
-  padding: 0.15rem 0.3rem;
+  box-shadow: none;
+  padding: 0.42rem 0.52rem; /* slightly taller */
 }
 
 /* Even smaller padding for Profile page */
 .profile-page .video-info {
-  background: linear-gradient(135deg, 
-    #4682B4 0%,
-    #5F9EA0 25%, 
-    #6495ED 50%, 
-    #87CEEB 75%, 
-    #7FB4D4 100%
-  );
-  backdrop-filter: blur(15px);
+  background: transparent;
   border-radius: 0 0 16px 16px;
-  padding: 0.1rem 0.2rem;
+  padding: 0.38rem 0.46rem;
 }
 
 .video-title {
-  font-size: 0.6rem;
+  font-size: 0.96rem;
   font-weight: 500;
-  color: #ffffff !important;
   margin: 0;
-  padding: 0;
-  line-height: 1.1;
+  padding: 0 0 3px 0; /* add bottom padding to avoid descender clipping */
+  line-height: 1.25; /* increase line-height slightly for descenders */
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
     sans-serif;
   letter-spacing: -0.01em;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
   text-align: center;
   cursor: default;
   pointer-events: none;
   text-decoration: none !important;
+  /* Revert to solid readable text color to avoid broken appearance */
   background: transparent;
+  color: #ffffff !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
 }
 
 /* Slightly larger title for Profile page */
 .profile-page .video-title {
-  font-size: 0.65rem;
+  font-size: 0.68rem;
   margin: 0;
   padding: 0;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   font-weight: 500;
-  color: #ffffff !important;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
   text-align: center;
   cursor: default;
   pointer-events: none;
@@ -267,24 +257,17 @@
   }
 
   .video-info {
-    background: linear-gradient(135deg, 
-      #4682B4 0%,
-      #5F9EA0 25%, 
-      #6495ED 50%, 
-      #87CEEB 75%, 
-      #7FB4D4 100%
-    );
-    backdrop-filter: blur(8px);
-    padding: 0.1rem 0.2rem;
+    padding: 0.38rem 0.46rem;
+    box-shadow: none;
+    background: transparent;
   }
 
   .video-title {
-    font-size: 0.6rem;
+    font-size: 0.86rem;
     margin: 0;
     padding: 0;
     line-height: 1.1;
-    color: #ffffff !important;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
     text-align: center;
     cursor: default;
     pointer-events: none;
@@ -306,7 +289,7 @@
   }
 
   .profile-page .video-title {
-    font-size: 0.65rem;
+    font-size: 0.72rem;
     color: #ffffff !important;
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
     text-align: center;
@@ -322,31 +305,24 @@
   }
 
   .video-info {
-    background: linear-gradient(135deg, 
-      #4682B4 0%,
-      #5F9EA0 25%, 
-      #6495ED 50%, 
-      #87CEEB 75%, 
-      #7FB4D4 100%
-    );
-    backdrop-filter: blur(8px);
-    padding: 0.1rem 0.25rem;
+    padding: 0.40rem 0.48rem;
+    box-shadow: none;
+    background: transparent;
   }
 
   .video-title {
-    font-size: 0.6rem;
+    font-size: 0.86rem;
     margin: 0;
     padding: 0;
     line-height: 1.1;
-    color: #ffffff !important;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
     text-align: center;
     cursor: default;
     pointer-events: none;
   }
 
   .profile-page .video-title {
-    font-size: 0.65rem;
+    font-size: 0.72rem;
     color: #ffffff !important;
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
     text-align: center;
@@ -370,11 +346,11 @@
       #7FB4D4 100%
     );
     backdrop-filter: blur(8px);
-    padding: 0.15rem 0.3rem;
+    padding: 0.12rem 0.24rem;
   }
 
   .video-title {
-    font-size: 0.6rem;
+    font-size: 0.76rem;
     margin: 0;
     padding: 0;
     line-height: 1.1;
@@ -386,7 +362,7 @@
   }
 
   .profile-page .video-title {
-    font-size: 0.65rem;
+    font-size: 0.72rem;
     color: #ffffff !important;
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
     text-align: center;
@@ -402,19 +378,13 @@
   }
 
   .video-info {
-    background: linear-gradient(135deg, 
-      #4682B4 0%,
-      #5F9EA0 25%, 
-      #6495ED 50%, 
-      #87CEEB 75%, 
-      #7FB4D4 100%
-    );
-    backdrop-filter: blur(10px);
-    padding: 0.15rem 0.3rem;
+    padding: 0.42rem 0.52rem;
+    box-shadow: none;
+    background: transparent;
   }
 
   .video-title {
-    font-size: 0.6rem;
+    font-size: 0.92rem;
     margin: 0;
     padding: 0;
     line-height: 1.1;
@@ -426,7 +396,7 @@
   }
 
   .profile-page .video-title {
-    font-size: 0.65rem;
+    font-size: 0.72rem;
     color: #ffffff !important;
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
     text-align: center;
@@ -438,7 +408,7 @@
 /* Screen size: ≥1025px - maintain small title size */
 @media (min-width: 1025px) {
   .video-title {
-    font-size: 0.6rem;
+    font-size: 0.76rem;
     margin: 0;
     padding: 0;
     line-height: 1.1;
@@ -450,7 +420,7 @@
   }
 
   .profile-page .video-title {
-    font-size: 0.65rem;
+    font-size: 0.74rem;
     color: #ffffff !important;
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
     text-align: center;
@@ -474,21 +444,24 @@
 }
 
 .dark-theme .video-info {
-  background: rgba(15, 23, 42, 0.98) !important;
-  backdrop-filter: blur(15px);
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  background: transparent !important;
+  box-shadow: none;
 }
 
 .dark-theme .profile-page .video-info {
-  background: rgba(15, 23, 42, 0.98) !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  border-top: none !important;
 }
 
 .dark-theme .video-title {
-  color: #f1f5f9;
   font-weight: 500;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.75);
   text-decoration: none !important;
   background: transparent !important;
+  -webkit-background-clip: initial;
+  background-clip: initial;
+  color: #f1f5f9 !important;
 }
 
 .dark-theme .video-thumbnail {

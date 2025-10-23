@@ -48,17 +48,23 @@ const sequelize = new Sequelize(
 // Test connection
 (async () => {
   try {
-    console.log("🚀 Attempting to connect to database...");
-    console.log(`Host: ${process.env.DB_HOST}`);
-    console.log(`Database: ${process.env.DB_NAME}`);
-    console.log(`User: ${process.env.DB_USER}`);
-    console.log(`SSL Required: ${isAiven ? "✅ Yes" : "❌ No"}`);
+    if (process.env.NODE_ENV !== 'production') {
+      console.log("🚀 Attempting to connect to database...");
+      console.log(`Host: ${process.env.DB_HOST}`);
+      console.log(`Database: ${process.env.DB_NAME}`);
+      console.log(`User: ${process.env.DB_USER}`);
+      console.log(`SSL Required: ${isAiven ? "✅ Yes" : "❌ No"}`);
+    }
 
     await sequelize.authenticate();
-    console.log("✅ Database connection established successfully.");
+    if (process.env.NODE_ENV !== 'production') {
+      console.log("✅ Database connection established successfully.");
+    }
 
     await sequelize.sync({ force: false });
-    console.log("✅ All models synchronized successfully.");
+    if (process.env.NODE_ENV !== 'production') {
+      console.log("✅ All models synchronized successfully.");
+    }
   } catch (error) {
     console.error("❌ Unable to connect to database:", error.message);
     console.error("Error code:", error.original?.code);
@@ -98,8 +104,8 @@ Video.belongsToMany(User, { through: View, foreignKey: "videoId" });
       where: { email: "admin@movie.com" },
     });
     if (!adminExists) {
-     const salt = await bcrypt.genSalt(10);
-const hashedPassword = await bcrypt.hash(process.env.ADMIN_DEFAULT_PASS, salt);
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(process.env.ADMIN_DEFAULT_PASS, salt);
 
       await User.create({
         firstname: "Admin",
@@ -110,10 +116,14 @@ const hashedPassword = await bcrypt.hash(process.env.ADMIN_DEFAULT_PASS, salt);
         isAdmin: true,
       });
 
-      console.log("✅ Admin user created (admin@movie.com / admin123)");
+      if (process.env.NODE_ENV !== 'production') {
+        console.log("✅ Admin user created (admin@movie.com / admin123)");
+      }
     }
   } catch (error) {
-    console.error("❌ Error creating admin user:", error.message);
+    if (process.env.NODE_ENV !== 'production') {
+      console.error("❌ Error creating admin user:", error.message);
+    }
   }
 })();
 

@@ -66,7 +66,81 @@ app.use((req, res) => {
 });
 ```
 
-### 3. Database Connection Issues
+### 3. CORS Configuration Error
+
+**Symptoms**:
+- "Access to XMLHttpRequest at 'https://your-backend-url.com/api/v1/...' from origin 'https://your-frontend-url.com' has been blocked by CORS policy"
+- "Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header is present on the requested resource"
+- Frontend cannot make API requests to backend
+
+**Root Cause**:
+1. The backend is not configured to accept requests from the frontend origin
+2. The frontend is trying to make requests to an incorrect backend URL
+3. Environment variables are not properly configured
+
+**Solutions**:
+1. Update the backend CORS configuration to allow the frontend origin:
+   ```javascript
+   const allowedOrigins = [
+     "http://localhost:3000", // Local development
+     "http://localhost:8888", // Netlify dev
+     "https://your-production-frontend-url.com", // Production frontend
+     process.env.FRONTEND_URL, // Frontend URL from environment variables
+   ];
+   
+   const corsOptions = {
+     origin: function (origin, callback) {
+       if (!origin) return callback(null, true);
+       if (allowedOrigins.indexOf(origin) !== -1) {
+         callback(null, true);
+       } else {
+         callback(new Error('Not allowed by CORS'));
+       }
+     },
+     credentials: true,
+     optionsSuccessStatus: 200,
+   };
+   
+   app.use(cors(corsOptions));
+   ```
+
+2. Make sure the frontend is using the correct backend URL by setting the REACT_APP_API_URL environment variable
+
+3. Update the render.yaml file with the correct FRONTEND_URL environment variable
+
+### 4. Missing Icon Files Error
+
+**Symptoms**:
+- "Error while trying to use the following icon from the Manifest: ... (Download error or resource isn't a valid image)"
+- 404 errors for image files
+- Manifest validation errors
+
+**Root Cause**:
+The frontend is referencing image files that don't exist or are empty.
+
+**Solutions**:
+1. Update index.html to reference existing icon files:
+   ```html
+   <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+   <link rel="apple-touch-icon" href="%PUBLIC_URL%/favicon.ico" />
+   ```
+
+2. Update manifest.json to only include existing icon files:
+   ```json
+   {
+     "icons": [
+       {
+         "src": "favicon.ico",
+         "sizes": "64x64 32x32 24x24 16x16",
+         "type": "image/x-icon"
+       }
+     ]
+   }
+   ```
+
+3. Remove references to non-existent image files
+
+### 5. Database Connection Issues
 
 **Symptoms**:
 - "Unable to connect to the database" error
@@ -85,7 +159,7 @@ cd backend
 node testDatabaseConnection.js
 ```
 
-### 4. Environment Variables Not Set
+### 6. Environment Variables Not Set
 
 **Symptoms**:
 - "process.env.VARIABLE is undefined" errors
@@ -97,7 +171,7 @@ node testDatabaseConnection.js
 2. Check that variable names match exactly (case-sensitive)
 3. Verify no typos in variable names
 
-### 5. Port Configuration Issues
+### 7. Port Configuration Issues
 
 **Symptoms**:
 - "Port already in use" errors
@@ -108,18 +182,7 @@ node testDatabaseConnection.js
 1. Use `process.env.PORT` for the port number in server.js
 2. Ensure the port is correctly configured in the deployment platform
 
-### 6. CORS Errors
-
-**Symptoms**:
-- Frontend can't make API requests to backend
-- "Blocked by CORS policy" errors in browser console
-
-**Solutions**:
-1. Configure CORS properly in server.js
-2. Ensure the frontend URL is in the allowed origins list
-3. Set the correct FRONTEND_URL environment variable
-
-### 7. Build Failures
+### 8. Build Failures
 
 **Symptoms**:
 - Deployment fails during build step

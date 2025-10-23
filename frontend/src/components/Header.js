@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import ThemeToggle from "./ThemeToggle";
@@ -12,12 +13,15 @@ const Header = () => {
   const navigate = useNavigate();
   const menuRef = useRef(null);
 
-  const handleSearch = useCallback((e) => {
-    e.preventDefault();
-    if (searchTerm.trim()) {
-      navigate(`/search?q=${encodeURIComponent(searchTerm.trim())}`);
-    }
-  }, [navigate, searchTerm]);
+  const handleSearch = useCallback(
+    (e) => {
+      e.preventDefault();
+      if (searchTerm.trim()) {
+        navigate(`/search?q=${encodeURIComponent(searchTerm.trim())}`);
+      }
+    },
+    [navigate, searchTerm]
+  );
 
   const handleLogout = useCallback(() => {
     logout();
@@ -26,7 +30,7 @@ const Header = () => {
   }, [logout, navigate]);
 
   const toggleMenu = useCallback(() => {
-    setIsMenuOpen(prev => !prev);
+    setIsMenuOpen((prev) => !prev);
   }, []);
 
   const closeMenu = useCallback(() => {
@@ -47,6 +51,23 @@ const Header = () => {
 
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isMenuOpen]);
+
+  // Prevent background scroll when menu is open
+  useEffect(() => {
+    const body = document.body;
+    const html = document.documentElement;
+    if (isMenuOpen) {
+      body.classList.add("no-scroll");
+      html.classList.add("no-scroll");
+    } else {
+      body.classList.remove("no-scroll");
+      html.classList.remove("no-scroll");
+    }
+    return () => {
+      body.classList.remove("no-scroll");
+      html.classList.remove("no-scroll");
     };
   }, [isMenuOpen]);
 
@@ -119,69 +140,76 @@ const Header = () => {
           </button>
         </div>
 
-        {/* Mobile Menu */}
-        <nav
-          ref={menuRef}
-          className={`mobile-nav ${isMenuOpen ? "nav-open" : ""}`}
-        >
-          <div className="nav-content">
-            <div className="mobile-theme-toggle">
-              <span className="theme-icon sun-icon">☀️</span>
-              <ThemeToggle />
-              <span className="theme-icon moon-icon">🌙</span>
-            </div>
-            {isAuthenticated ? (
-              <>
-                {isAdmin && (
-                  <>
-                    <span className="admin-badge">ADMIN</span>
-                    <Link
-                      to="/admin"
-                      className="nav-link admin-link"
-                      onClick={closeMenu}
-                    >
-                      Admin Panel
-                    </Link>
-                  </>
-                )}
-                <Link
-                  to="/profile"
-                  className="nav-link profile-link"
-                  onClick={closeMenu}
-                >
-                  Profile
-                </Link>
-                <Link
-                  to="/profile?tab=watched"
-                  className="nav-link history-link"
-                  onClick={closeMenu}
-                >
-                  History
-                </Link>
-                <Link
-                  to="/profile?tab=starred"
-                  className="nav-link starred-link"
-                  onClick={closeMenu}
-                >
-                  ⭐ Watch Later
-                </Link>
+        {/* Mobile Menu via Portal (decoupled from header DOM) */}
+        {isMenuOpen &&
+          createPortal(
+            <>
+              <div className="nav-overlay" onClick={closeMenu} />
+              <nav
+                ref={menuRef}
+                className={`mobile-nav ${isMenuOpen ? "nav-open" : ""}`}
+              >
+                <div className="nav-content">
+                  <div className="mobile-theme-toggle">
+                    <span className="theme-icon sun-icon">☀️</span>
+                    <ThemeToggle />
+                    <span className="theme-icon moon-icon">🌙</span>
+                  </div>
+                  {isAuthenticated ? (
+                    <>
+                      {isAdmin && (
+                        <>
+                          <span className="admin-badge">ADMIN</span>
+                          <Link
+                            to="/admin"
+                            className="nav-link admin-link"
+                            onClick={closeMenu}
+                          >
+                            Admin Panel
+                          </Link>
+                        </>
+                      )}
+                      <Link
+                        to="/profile"
+                        className="nav-link profile-link"
+                        onClick={closeMenu}
+                      >
+                        Profile
+                      </Link>
+                      <Link
+                        to="/profile?tab=watched"
+                        className="nav-link history-link"
+                        onClick={closeMenu}
+                      >
+                        History
+                      </Link>
+                      <Link
+                        to="/profile?tab=starred"
+                        className="nav-link starred-link"
+                        onClick={closeMenu}
+                      >
+                        ⭐ Watch Later
+                      </Link>
 
-                <button onClick={handleLogout} className="nav-link logout-btn">
-                  Logout
-                </button>
-              </>
-            ) : (
-              <>
-                <Link to="/login" className="nav-link" onClick={closeMenu}>
-                  Login
-                </Link>
-                <Link to="/register" className="nav-link" onClick={closeMenu}>
-                  Register
-                </Link>
-              </>
-            )}
-          </div>
-        </nav>
+                      <button onClick={handleLogout} className="nav-link logout-btn">
+                        Logout
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <Link to="/login" className="nav-link" onClick={closeMenu}>
+                        Login
+                      </Link>
+                      <Link to="/register" className="nav-link" onClick={closeMenu}>
+                        Register
+                      </Link>
+                    </>
+                  )}
+                </div>
+              </nav>
+            </>,
+            document.body
+          )}
       </div>
     </header>
   );

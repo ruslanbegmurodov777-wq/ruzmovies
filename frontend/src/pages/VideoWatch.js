@@ -294,6 +294,9 @@ const VideoWatch = () => {
                   <div className="comment-content">
                     <div className="comment-header">
                       <span className="comment-author">
+                        <svg className="comment-user-icon" viewBox="0 0 24 24" aria-hidden="true">
+                          <path d="M12 12c2.761 0 5-2.239 5-5s-2.239-5-5-5-5 2.239-5 5 2.239 5 5 5zm0 2c-4.418 0-8 2.239-8 5v1c0 .552.448 1 1 1h14c.552 0 1-.448 1-1v-1c0-2.761-3.582-5-8-5z"/>
+                        </svg>
                         {comment.User?.username}
                       </span>
                       <span className="comment-date">
