@@ -87,5 +87,68 @@ Video.hasMany(Comment, { foreignKey: "videoId" });
 Comment.belongsTo(User, { foreignKey: "userId" });
 Comment.belongsTo(Video, { foreignKey: "videoId" });
 
+// Ensure DB schema is up to date (adds missing columns/indexes)
+(async () => {
+  try {
+    await sequelize.sync({ alter: true });
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('✅ Models synchronized (alter)');
+    }
+  } catch (e) {
+    console.error('❌ Sequelize sync failed:', e?.message);
+  }
+})();
+
+// Likes: many-to-many between Users and Videos through VideoLike
+User.belongsToMany(Video, { through: VideoLike, foreignKey: "userId", otherKey: "videoId", as: "LikedVideos" });
+Video.belongsToMany(User, { through: VideoLike, foreignKey: "videoId", otherKey: "userId", as: "UsersWhoLiked" });
+
+// Views: many-to-many between Users and Videos through View
+User.belongsToMany(Video, { through: View, foreignKey: "userId", otherKey: "videoId", as: "ViewedVideos" });
+Video.belongsToMany(User, { through: View, foreignKey: "videoId", otherKey: "userId", as: "Viewers" });
+
 export { sequelize, User, Video, VideoLike, Comment, Subscription, View };
 export default sequelize;
+
+// Admin foydalanuvchini bootstrap qilish (agar mavjud bo'lmasa)
+(async () => {
+  try {
+    const adminEmail = process.env.ADMIN_EMAIL || 'admin@movie.com';
+    const adminUsername = process.env.ADMIN_USERNAME || 'admin';
+    const defaultPass = process.env.ADMIN_DEFAULT_PASS || 'admin123';
+
+    const exists = await User.findOne({ where: { email: adminEmail } });
+    if (!exists) {
+      const salt = await bcrypt.genSalt(10);
+      const hashed = await bcrypt.hash(defaultPass, salt);
+      await User.create({
+        firstname: 'Admin',
+        lastname: 'User',
+        username: adminUsername,
+        email: adminEmail,
+        password: hashed,
+        isAdmin: true,
+      });
+      if (process.env.NODE_ENV !== 'production') {
+        console.log(`✅ Admin created: ${adminEmail}`);
+      }
+      (async () => {
+        try {
+          // Ensure tables and new columns/indexes exist
+          await sequelize.sync({ alter: true });
+          if (process.env.NODE_ENV !== 'production') {
+            console.log('✅ Models synchronized (alter)');
+          }
+        } catch (e) {
+          if (process.env.NODE_ENV !== 'production') {
+            console.error('❌ Admin bootstrap failed:', e?.message);
+          }
+        }
+      })();
+    }
+  } catch (e) {
+    if (process.env.NODE_ENV !== 'production') {
+      console.error('❌ Admin bootstrap failed:', e?.message);
+    }
+  }
+})();
