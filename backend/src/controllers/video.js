@@ -39,10 +39,12 @@ export const newVideo = asyncHandler(async (req, res, next) => {
   } else {
     videoData.uploadType = 'url';
     
-    // For URL uploads, thumbnail is required
-    if (!videoData.thumbnail) {
+    // For URL uploads, require either a thumbnail URL or a thumbnail file
+    const hasThumbUrl = !!videoData.thumbnail;
+    const hasThumbFile = !!(req.files && req.files.thumbnailFile && req.files.thumbnailFile[0]);
+    if (!hasThumbUrl && !hasThumbFile) {
       return next({
-        message: "Thumbnail is required for URL uploads",
+        message: "Provide a thumbnail URL or upload a thumbnail image",
         statusCode: 400,
       });
     }

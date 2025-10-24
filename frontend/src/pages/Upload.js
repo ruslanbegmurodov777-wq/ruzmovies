@@ -323,7 +323,7 @@ const Upload = () => {
               </div>
             </div>
 
-            {/* File Upload Section - Only shown when file method is selected */}
+            {/* File Upload Section - Visible when file method is selected */}
             {uploadMethod === 'file' && (
               <div className="form-group file-upload-section">
                 <label htmlFor="videoFile">Upload Video File</label>
@@ -387,57 +387,53 @@ const Upload = () => {
               </div>
             )}
 
-            {/* Thumbnail Section - Only shown when file method is selected */}
-            {uploadMethod === 'file' && (
-              <div className="form-group file-upload-section">
-                <label htmlFor="thumbnailFile">Upload Thumbnail (Optional)</label>
-                <div className="file-upload-wrapper">
-                  <input
-                    type="file"
-                    id="thumbnailFile"
-                    name="thumbnailFile"
-                    onChange={handleThumbnailFileChange}
-                    accept="image/*"
-                    className="file-input"
-                  />
-                  <label htmlFor="thumbnailFile" className="file-label">
-                    <span className="file-label-text">
-                      {thumbnailFile ? 'Change Thumbnail' : 'Choose Thumbnail'}
-                    </span>
-                    {thumbnailFile && (
-                      <span className="file-name">{thumbnailFile.name}</span>
-                    )}
-                  </label>
-                </div>
-                <small className="form-help">
-                  Select a thumbnail image to upload directly to the server (JPG, PNG, etc.)
-                </small>
-                {thumbnailFile && (
-                  <div className="file-info">
-                    Selected file: {thumbnailFile.name} ({Math.round(thumbnailFile.size / 1024 / 1024 * 100) / 100} MB)
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Thumbnail URL Section - Only shown when URL method is selected */}
-            {uploadMethod === 'url' && (
-              <div className="form-group">
-                <label htmlFor="thumbnail">Thumbnail URL *</label>
+            {/* Thumbnail File - Available for both methods */}
+            <div className="form-group file-upload-section">
+              <label htmlFor="thumbnailFile">Upload Thumbnail {uploadMethod === 'url' ? '(Optional if URL provided)' : '(Optional)'}</label>
+              <div className="file-upload-wrapper">
                 <input
-                  type="url"
-                  id="thumbnail"
-                  name="thumbnail"
-                  value={formData.thumbnail}
-                  onChange={handleInputChange}
-                  required={uploadMethod === 'url'}
-                  placeholder="Auto-generated or custom thumbnail URL"
+                  type="file"
+                  id="thumbnailFile"
+                  name="thumbnailFile"
+                  onChange={handleThumbnailFileChange}
+                  accept="image/*"
+                  className="file-input"
                 />
-                <small className="form-help">
-                  Thumbnail will be auto-generated for YouTube/Vimeo. You can override with a custom URL.
-                </small>
+                <label htmlFor="thumbnailFile" className="file-label">
+                  <span className="file-label-text">
+                    {thumbnailFile ? 'Change Thumbnail' : 'Choose Thumbnail'}
+                  </span>
+                  {thumbnailFile && (
+                    <span className="file-name">{thumbnailFile.name}</span>
+                  )}
+                </label>
               </div>
-            )}
+              <small className="form-help">
+                Select a thumbnail image to upload directly to the server (JPG, PNG, etc.)
+              </small>
+              {thumbnailFile && (
+                <div className="file-info">
+                  Selected file: {thumbnailFile.name} ({Math.round(thumbnailFile.size / 1024 / 1024 * 100) / 100} MB)
+                </div>
+              )}
+            </div>
+
+            {/* Thumbnail URL - Available for both methods (required for URL uploads if no file chosen) */}
+            <div className="form-group">
+              <label htmlFor="thumbnail">Thumbnail URL {uploadMethod === 'url' && !thumbnailFile ? '*' : ''}</label>
+              <input
+                type="url"
+                id="thumbnail"
+                name="thumbnail"
+                value={formData.thumbnail}
+                onChange={handleInputChange}
+                required={uploadMethod === 'url' && !thumbnailFile}
+                placeholder="Auto-generated or custom thumbnail URL"
+              />
+              <small className="form-help">
+                For URL videos, provide a thumbnail URL or upload a thumbnail image.
+              </small>
+            </div>
 
             {formData.thumbnail && (
               <div className="thumbnail-preview">

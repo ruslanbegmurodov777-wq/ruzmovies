@@ -425,6 +425,10 @@ const getVideos = async (model, req, res, next) => {
   await Promise.all(videos.map(async (video) => {
     const views = await View.count({ where: { videoId: video.id } });
     video.setDataValue("views", views);
+    // Provide thumbnail URL for file uploads so frontend shows thumbnails
+    if (video.uploadType === 'file' && video.thumbnailFileSize) {
+      video.setDataValue("thumbnailFileUrl", `/api/v1/videos/${video.id}/thumbnail`);
+    }
   }));
 
   res.status(200).json({ success: true, data: videos });
