@@ -3,7 +3,7 @@ import { fetchVideos } from "../utils/api";
 import VideoCard from "../components/VideoCard";
 import "./Home.css";
 
-const PAGE_SIZE = 12;
+const PAGE_SIZE = 9;
 
 const Home = () => {
   const [items, setItems] = useState([]);

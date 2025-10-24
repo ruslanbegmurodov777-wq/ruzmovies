@@ -473,10 +473,10 @@ body.dark-theme .hamburger-line {
   }
 
   .search-form {
-    margin: 0 0.25rem 0 0; /* add slight space before hamburger */
+    margin: 0 0.5rem 0 0; /* add a bit more space before hamburger */
     flex: 1;
     min-width: 0;
-    max-width: none;
+    max-width: calc(100vw - 180px); /* ensure room for logo + buttons */
   }
 
   .search-input {
@@ -488,7 +488,7 @@ body.dark-theme .hamburger-line {
     padding: 0.6rem 1rem;
     font-size: 14px;
     position: relative;
-    z-index: 1; /* keep below hamburger to allow clicks */
+    z-index: 1;
   }
 
   .header-right {
@@ -555,8 +555,9 @@ body.dark-theme .hamburger-line {
   .mobile-menu-toggle {
     display: flex;
     position: relative;
-    z-index: 10010; /* above search and inputs for reliable tapping */
-    margin-left: 4px;
+    z-index: 2; /* keep high enough for tap, but not overlapping layout */
+    margin-left: 8px; /* add clear gap from Search */
+    flex-shrink: 0; /* prevent squeezing over Search */
   }
 
   .nav {

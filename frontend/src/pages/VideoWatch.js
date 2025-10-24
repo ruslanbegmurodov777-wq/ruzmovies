@@ -163,7 +163,9 @@ const VideoWatch = () => {
     
     // For file uploads, use the video file URL
     if (video.videoFileUrl) {
-      return `${api.defaults.baseURL}${video.videoFileUrl}`;
+      return video.videoFileUrl.startsWith('/api')
+        ? video.videoFileUrl
+        : `${api.defaults.baseURL}${video.videoFileUrl}`;
     }
     // For URL uploads, use the url property
     return video.url || '';
@@ -175,7 +177,9 @@ const VideoWatch = () => {
     
     // For file uploads with thumbnail files, use the thumbnail file URL
     if (video.thumbnailFileUrl) {
-      return `${api.defaults.baseURL}${video.thumbnailFileUrl}`;
+      return video.thumbnailFileUrl.startsWith('/api')
+        ? video.thumbnailFileUrl
+        : `${api.defaults.baseURL}${video.thumbnailFileUrl}`;
     }
     // For URL uploads or videos with thumbnail URLs, use the thumbnail property
     return video.thumbnail || '';
@@ -280,10 +284,13 @@ const VideoWatch = () => {
               {video.comments?.map((comment) => (
                 <div key={comment.id} className="comment">
                   <div className="comment-avatar">
-                    {comment.User?.avatar ? (
+                    {comment.User?.avatar && /^https?:\/\//.test(comment.User.avatar) ? (
                       <img
                         src={comment.User.avatar}
                         alt={comment.User.username}
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                        }}
                       />
                     ) : (
                       <div className="default-avatar">
@@ -296,7 +303,7 @@ const VideoWatch = () => {
                       <span className="comment-author">
                         <svg className="comment-user-icon" viewBox="0 0 24 24" aria-hidden="true">
                           <path d="M12 12c2.761 0 5-2.239 5-5s-2.239-5-5-5-5 2.239-5 5 2.239 5 5 5zm0 2c-4.418 0-8 2.239-8 5v1c0 .552.448 1 1 1h14c.552 0 1-.448 1-1v-1c0-2.761-3.582-5-8-5z"/>
-                        </svg>
+                      </svg>
                         {comment.User?.username}
                       </span>
                       <span className="comment-date">
