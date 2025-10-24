@@ -53,6 +53,25 @@ app.get("/api/health", (req, res) => {
   });
 });
 
+// Fallback placeholder image (works even if no file exists on disk)
+app.get('/placeholder-thumbnail.jpg', (req, res) => {
+  const svg = `<?xml version="1.0" encoding="UTF-8"?>
+  <svg xmlns="http://www.w3.org/2000/svg" width="800" height="450" viewBox="0 0 800 450">
+    <defs>
+      <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#1e293b"/>
+        <stop offset="100%" stop-color="#334155"/>
+      </linearGradient>
+    </defs>
+    <rect width="800" height="450" fill="url(#g)"/>
+    <g fill="#e2e8f0" font-family="Inter,Segoe UI,Arial" text-anchor="middle">
+      <text x="400" y="230" font-size="36" font-weight="700">Ruzmovie</text>
+      <text x="400" y="270" font-size="18" opacity="0.8">No thumbnail</text>
+    </g>
+  </svg>`;
+  res.type('image/svg+xml').send(svg);
+});
+
 // Serve frontend assets with long-term cache headers
 app.use(express.static('public', {
   maxAge: '1y',
