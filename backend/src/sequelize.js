@@ -130,9 +130,12 @@ Video.belongsToMany(User, {
 export { sequelize, User, Video, VideoLike, Comment, Subscription, View };
 export default sequelize;
 
-// Admin foydalanuvchini bootstrap qilish (agar mavjud bo'lmasa)
+// Admin foydalanuvchini bootstrap qilish (agar mavjud bo'lmasa yoki update qilish)
 (async () => {
   try {
+    // Wait for sync to complete first
+    await new Promise(resolve => setTimeout(resolve, 2000));
+
     const adminEmail =
       process.env.ADMIN_EMAIL || "ruslanbegmurodov777@gmail.com";
     const adminUsername = process.env.ADMIN_USERNAME || "admin";
@@ -153,19 +156,19 @@ export default sequelize;
       if (process.env.NODE_ENV !== "production") {
         console.log(`✅ Admin created: ${adminEmail}`);
       }
-      (async () => {
-        try {
-          // Ensure tables and new columns/indexes exist
-          await sequelize.sync({ alter: true });
-          if (process.env.NODE_ENV !== "production") {
-            console.log("✅ Models synchronized (alter)");
-          }
-        } catch (e) {
-          if (process.env.NODE_ENV !== "production") {
-            console.error("❌ Admin bootstrap failed:", e?.message);
-          }
-        }
-      })();
+    } else if (!exists.isAdmin) {
+      // Update existing user to admin
+      await User.update(
+        { isAdmin: true },
+        { where: { email: adminEmail } }
+      );
+      if (process.env.NODE_ENV !== "production") {
+        console.log(`✅ User promoted to admin: ${adminEmail}`);
+      }
+    } else if (exists.isAdmin) {
+      if (process.env.NODE_ENV !== "production") {
+        console.log(`✅ Admin already exists: ${adminEmail}`);
+      }
     }
   } catch (e) {
     if (process.env.NODE_ENV !== "production") {
