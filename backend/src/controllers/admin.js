@@ -1,5 +1,3 @@
-import path from "path";
-import multer from "multer";
 import { User, Video } from "../sequelize.js";
 import asyncHandler from "../middlewares/asyncHandler.js";
 
@@ -81,4 +79,38 @@ export const updateVideo = asyncHandler(async (req, res, next) => {
 
   const updatedVideo = await Video.findByPk(id);
   res.status(200).json({ success: true, data: updatedVideo });
+});
+
+export const promoteToAdmin = asyncHandler(async (req, res, next) => {
+  const { userId } = req.params;
+
+  const user = await User.findByPk(userId);
+  if (!user) {
+    return next({ message: "User not found", statusCode: 404 });
+  }
+
+  await User.update({ isAdmin: true }, { where: { id: userId } });
+
+  const updatedUser = await User.findByPk(userId, {
+    attributes: ["id", "firstname", "lastname", "username", "email", "isAdmin"],
+  });
+
+  res.status(200).json({ success: true, data: updatedUser });
+});
+
+export const revokeAdmin = asyncHandler(async (req, res, next) => {
+  const { userId } = req.params;
+
+  const user = await User.findByPk(userId);
+  if (!user) {
+    return next({ message: "User not found", statusCode: 404 });
+  }
+
+  await User.update({ isAdmin: false }, { where: { id: userId } });
+
+  const updatedUser = await User.findByPk(userId, {
+    attributes: ["id", "firstname", "lastname", "username", "email", "isAdmin"],
+  });
+
+  res.status(200).json({ success: true, data: updatedUser });
 });

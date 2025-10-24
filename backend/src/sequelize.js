@@ -87,7 +87,15 @@ Video.hasMany(Comment, { foreignKey: "videoId" });
 Comment.belongsTo(User, { foreignKey: "userId" });
 Comment.belongsTo(Video, { foreignKey: "videoId" });
 
-// Ensure DB schema is up to date (adds missing columns/indexes)
+// Likes: many-to-many between Users and Videos through VideoLike
+User.belongsToMany(Video, { through: VideoLike, foreignKey: "userId", otherKey: "videoId", as: "LikedVideos" });
+Video.belongsToMany(User, { through: VideoLike, foreignKey: "videoId", otherKey: "userId", as: "UsersWhoLiked" });
+
+// Views: many-to-many between Users and Videos through View
+User.belongsToMany(Video, { through: View, foreignKey: "userId", otherKey: "videoId", as: "ViewedVideos" });
+Video.belongsToMany(User, { through: View, foreignKey: "videoId", otherKey: "userId", as: "Viewers" });
+
+// Ensure DB schema is up to date (adds missing columns/indexes) - AFTER all associations
 (async () => {
   try {
     await sequelize.sync({ alter: true });
@@ -99,21 +107,13 @@ Comment.belongsTo(Video, { foreignKey: "videoId" });
   }
 })();
 
-// Likes: many-to-many between Users and Videos through VideoLike
-User.belongsToMany(Video, { through: VideoLike, foreignKey: "userId", otherKey: "videoId", as: "LikedVideos" });
-Video.belongsToMany(User, { through: VideoLike, foreignKey: "videoId", otherKey: "userId", as: "UsersWhoLiked" });
-
-// Views: many-to-many between Users and Videos through View
-User.belongsToMany(Video, { through: View, foreignKey: "userId", otherKey: "videoId", as: "ViewedVideos" });
-Video.belongsToMany(User, { through: View, foreignKey: "videoId", otherKey: "userId", as: "Viewers" });
-
 export { sequelize, User, Video, VideoLike, Comment, Subscription, View };
 export default sequelize;
 
 // Admin foydalanuvchini bootstrap qilish (agar mavjud bo'lmasa)
 (async () => {
   try {
-    const adminEmail = process.env.ADMIN_EMAIL || 'admin@movie.com';
+    const adminEmail = process.env.ADMIN_EMAIL || 'ruslanbegmurodov777@gmail.com';
     const adminUsername = process.env.ADMIN_USERNAME || 'admin';
     const defaultPass = process.env.ADMIN_DEFAULT_PASS || 'admin123';
 

@@ -7,6 +7,8 @@ import {
   removeVideo,
   addVideo,
   updateVideo,
+  promoteToAdmin,
+  revokeAdmin,
 } from "../controllers/admin.js";
 import { admin, protect } from "../middlewares/auth.js";
 
@@ -35,6 +37,8 @@ router
   .route("/videos")
   .post(protect, admin, upload.single("videoFile"), addVideo);
 router.route("/users/:username").delete(protect, admin, removeUser);
+router.route("/users/:userId/promote").put(protect, admin, promoteToAdmin);
+router.route("/users/:userId/revoke").put(protect, admin, revokeAdmin);
 router.route("/videos/:id").delete(protect, admin, removeVideo);
 router.route("/videos/:id").put(protect, admin, updateVideo);
 
