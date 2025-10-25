@@ -486,7 +486,14 @@ th {
   max-width: 500px;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 600px) {
+  .videos-table,
+  .users-table {
+    overflow-x: visible; /* avoid scroll; we will hide columns */
+  }
+}
+
+@media (max-width: 390px) {
   .admin-container {
     padding: 0 1rem;
   }
