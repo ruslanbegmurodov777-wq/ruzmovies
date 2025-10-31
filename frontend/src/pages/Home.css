@@ -1,8 +1,6 @@
 .home {
   padding: 1rem 0;
-  transition: all 0.5s ease;
   background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(10px);
   min-height: 100vh;
 }
 
@@ -10,10 +8,6 @@
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 1rem;
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(5px);
-  border-radius: 20px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
 }
 
 .admin-dashboard {
@@ -25,7 +19,6 @@
   box-shadow: 
     0 4px 12px rgba(139, 92, 246, 0.15),
     0 0 8px rgba(168, 85, 247, 0.1);
-  backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -55,7 +48,6 @@
   padding: 0.75rem;
   border-radius: 8px;
   text-align: center;
-  backdrop-filter: blur(8px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   transition: all 0.3s ease;
 }
@@ -85,7 +77,7 @@
   text-align: center;
   font-weight: 800;
   letter-spacing: -2px;
-  transition: all 0.3s ease;
+  transition: transform 0.3s ease, filter 0.3s ease;
   cursor: default;
   text-shadow: 0 4px 12px rgba(229, 9, 20, 0.3);
   background: linear-gradient(135deg, #e50914, #ff1744, #e50914);
@@ -94,6 +86,7 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   animation: shimmer 3s ease-in-out infinite;
+  will-change: transform;
 }
 
 @keyframes shimmer {
@@ -111,30 +104,12 @@
   filter: brightness(1.2);
 }
 
-/* Dark theme page title */
-body.dark-theme .page-title {
-  background: linear-gradient(135deg, #f1f5f9, #ffffff, #f8fafc);
-  background-size: 200% 200%;
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  text-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
-}
-
-body.dark-theme .page-title:hover {
-  text-shadow: 0 6px 20px rgba(255, 255, 255, 0.5);
-  filter: brightness(1.2) drop-shadow(0 0 10px rgba(255, 255, 255, 0.3));
-}
-
-.page-header {
-  margin-bottom: 2rem;
-}
-
 .category-filters {
   display: flex;
   justify-content: center;
   gap: 1rem;
   margin-top: 1.5rem;
+  margin-bottom: 2.5rem;
   flex-wrap: wrap;
 }
 
@@ -150,14 +125,18 @@ body.dark-theme .page-title:hover {
   cursor: pointer;
   font-size: 0.95rem;
   font-weight: 600;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              background 0.3s ease,
+              border-color 0.3s ease,
+              color 0.3s ease;
   text-transform: capitalize;
   box-shadow: 
     0 4px 12px rgba(0, 0, 0, 0.1),
     0 2px 6px rgba(59, 130, 246, 0.05);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   letter-spacing: -0.025em;
-  backdrop-filter: blur(15px);
+  will-change: transform;
 }
 
 .category-btn:hover {
@@ -183,34 +162,12 @@ body.dark-theme .page-title:hover {
     0 4px 15px rgba(29, 78, 216, 0.3);
 }
 
-/* Dark theme styles */
-body.dark-theme .category-btn {
-  background: linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(51, 65, 85, 0.8));
-  color: #e2e8f0;
-  border-color: rgba(255, 255, 255, 0.15);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-}
-
-body.dark-theme .category-btn:hover {
-  border-color: rgba(139, 92, 246, 0.6);
-  color: rgba(139, 92, 246, 1);
-  box-shadow: 0 6px 15px rgba(139, 92, 246, 0.25);
-  background: linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(51, 65, 85, 0.9));
-}
-
-body.dark-theme .category-btn.active {
-  background: linear-gradient(135deg, rgba(139, 92, 246, 0.9), rgba(168, 85, 247, 0.8));
-  color: white;
-  border-color: rgba(139, 92, 246, 0.9);
-  box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
-}
-
 .videos-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr) !important;
   gap: 0.6rem !important;
-  margin-bottom: 1rem;
   padding: 0;
+  contain: layout style;
 }
 
 .loading, .error, .no-videos {
@@ -268,8 +225,6 @@ body.dark-theme .no-videos {
   color: #d1d5db;
   background: rgba(107, 114, 128, 0.2);
 }
-
-
 
 /* Screen size: ≥1025px - 5 movies per row */
 @media (min-width: 1025px) {
@@ -379,4 +334,25 @@ body.dark-theme .no-videos {
   background: rgba(75, 85, 99, 0.2);
   color: #d1d5db;
   border-color: rgba(75, 85, 99, 0.4);
+}
+
+body.dark-theme .category-btn {
+  background: linear-gradient(135deg, rgba(51, 65, 85, 0.95), rgba(71, 85, 105, 0.9));
+  color: #f1f5f9;
+  border-color: rgba(148, 163, 184, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+body.dark-theme .category-btn:hover {
+  border-color: rgba(139, 92, 246, 0.8);
+  color: #e9d5ff;
+  box-shadow: 0 6px 20px rgba(139, 92, 246, 0.35);
+  background: linear-gradient(135deg, rgba(71, 85, 105, 1), rgba(100, 116, 139, 0.95));
+}
+
+body.dark-theme .category-btn.active {
+  background: linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%);
+  color: white;
+  border-color: #8b5cf6;
+  box-shadow: 0 8px 25px rgba(139, 92, 246, 0.5);
 }

@@ -4,6 +4,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { useStarred } from "../contexts/StarredContext";
 import api from "../utils/api"; // Import the configured api instance
 import VideoPlayer from "../components/VideoPlayer";
+import VideoCard from "../components/VideoCard";
 import "./VideoWatch.css";
 
 const VideoWatch = () => {
@@ -13,8 +14,10 @@ const VideoWatch = () => {
   const [video, setVideo] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [relatedVideos, setRelatedVideos] = useState([]);
   const [newComment, setNewComment] = useState("");
   const [submittingComment, setSubmittingComment] = useState(false);
+  const [showAllComments, setShowAllComments] = useState(false);
 
   const fetchVideo = useCallback(async () => {
     try {
@@ -29,6 +32,20 @@ const VideoWatch = () => {
         } catch (viewError) {
           // Silently handle view recording errors
         }
+      }
+
+      // Fetch related videos
+      try {
+        const relatedResponse = await api.get('/videos', {
+          params: { limit: 12 }
+        });
+        const allVideos = relatedResponse.data.data || [];
+        // Filter out current video and limit to 8
+        const filtered = allVideos.filter(v => v.id !== parseInt(id)).slice(0, 8);
+        setRelatedVideos(filtered);
+      } catch (relatedError) {
+        // Silently handle related videos error
+        setRelatedVideos([]);
       }
     } catch (error) {
       setError("Failed to load video");
@@ -117,7 +134,6 @@ const VideoWatch = () => {
         });
         const newCommentData = response.data.data;
 
-        // Update only comments without refetching entire video
         setVideo((prevVideo) => ({
           ...prevVideo,
           comments: [newCommentData, ...(prevVideo.comments || [])],
@@ -212,9 +228,14 @@ const VideoWatch = () => {
           <h1 className="video-title">{video.title}</h1>
 
           <div className="video-stats">
-            <span>
-              {formatViews(video.views)} views • {formatDate(video.createdAt)}
-            </span>
+            <div className="video-meta">
+              <span>
+                {formatViews(video.views)} views • {formatDate(video.createdAt)}
+              </span>
+              <span className="comments-count">
+                {video.commentsCount || 0} Comments
+              </span>
+            </div>
             <div className="video-actions">
               <button
                 className={`action-btn ${video.isLiked ? "active" : ""}`}
@@ -251,7 +272,51 @@ const VideoWatch = () => {
           )}
 
           <div className="comments-section">
-            <h3>{video.commentsCount} Comments</h3>
+            {video.comments && video.comments.length > 0 && (
+              <div className="comments-list">
+                {(showAllComments ? video.comments : video.comments.slice(0, 1)).map((comment) => (
+                  <div key={comment.id} className="comment">
+                    <div className="comment-avatar">
+                      {comment.User?.avatar && /^https?:\/\//.test(comment.User.avatar) ? (
+                        <img
+                          src={comment.User.avatar}
+                          alt={comment.User.username}
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                          }}
+                        />
+                      ) : (
+                        <div className="default-avatar">
+                          {comment.User?.username?.[0]?.toUpperCase()}
+                        </div>
+                      )}
+                    </div>
+                    <div className="comment-content">
+                      <div className="comment-header">
+                        <span className="comment-author">
+                          {comment.User?.username}
+                        </span>
+                        <span className="comment-date">
+                          {formatDate(comment.createdAt)}
+                        </span>
+                      </div>
+                      <p className="comment-text">{comment.text}</p>
+                    </div>
+                  </div>
+                ))}
+                
+                {video.comments.length > 1 && (
+                  <button
+                    className="show-more-comments"
+                    onClick={() => setShowAllComments(!showAllComments)}
+                  >
+                    {showAllComments
+                      ? `Show Less`
+                      : `Show ${video.comments.length - 1} More Comment${video.comments.length - 1 > 1 ? 's' : ''}`}
+                  </button>
+                )}
+              </div>
+            )}
 
             <form onSubmit={handleCommentSubmit} className="comment-form">
               <textarea
@@ -262,7 +327,6 @@ const VideoWatch = () => {
                     ? "Add a comment..."
                     : "Please login to add comments"
                 }
-                rows="3"
                 disabled={!isAuthenticated}
               />
               <button
@@ -273,46 +337,19 @@ const VideoWatch = () => {
                 className="comment-submit"
               >
                 {!isAuthenticated
-                  ? "Login to Comment"
+                  ? "Login"
                   : submittingComment
-                  ? "Adding..."
+                  ? "..."
                   : "Comment"}
               </button>
             </form>
+          </div>
 
-            <div className="comments-list">
-              {video.comments?.map((comment) => (
-                <div key={comment.id} className="comment">
-                  <div className="comment-avatar">
-                    {comment.User?.avatar && /^https?:\/\//.test(comment.User.avatar) ? (
-                      <img
-                        src={comment.User.avatar}
-                        alt={comment.User.username}
-                        onError={(e) => {
-                          e.currentTarget.style.display = 'none';
-                        }}
-                      />
-                    ) : (
-                      <div className="default-avatar">
-                        {comment.User?.username?.[0]?.toUpperCase()}
-                      </div>
-                    )}
-                  </div>
-                  <div className="comment-content">
-                    <div className="comment-header">
-                      <span className="comment-author">
-                        <svg className="comment-user-icon" viewBox="0 0 24 24" aria-hidden="true">
-                          <path d="M12 12c2.761 0 5-2.239 5-5s-2.239-5-5-5-5 2.239-5 5 2.239 5 5 5zm0 2c-4.418 0-8 2.239-8 5v1c0 .552.448 1 1 1h14c.552 0 1-.448 1-1v-1c0-2.761-3.582-5-8-5z"/>
-                      </svg>
-                        {comment.User?.username}
-                      </span>
-                      <span className="comment-date">
-                        {formatDate(comment.createdAt)}
-                      </span>
-                    </div>
-                    <p className="comment-text">{comment.text}</p>
-                  </div>
-                </div>
+          <div className="related-videos-section">
+            <h3>Related Videos</h3>
+            <div className="related-videos-grid">
+              {relatedVideos.map((relatedVideo) => (
+                <VideoCard key={relatedVideo.id} video={relatedVideo} />
               ))}
             </div>
           </div>
@@ -323,3 +360,4 @@ const VideoWatch = () => {
 };
 
 export default React.memo(VideoWatch);
+

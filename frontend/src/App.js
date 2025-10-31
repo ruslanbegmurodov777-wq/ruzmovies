@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { StarredProvider } from "./contexts/StarredContext";
+import { ToastProvider } from "./components/ToastContainer";
 import "./App.css";
 import "./styles/darkTheme.css";
 const Header = lazy(() => import("./components/Header"));
@@ -20,8 +21,9 @@ function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <StarredProvider>
-          <Router>
+        <ToastProvider>
+          <StarredProvider>
+            <Router>
             <div className="App">
               <Suspense fallback={<div style={{padding:"1rem"}}>Loading...</div>}>
                 <Header />
@@ -42,6 +44,7 @@ function App() {
             </div>
           </Router>
         </StarredProvider>
+        </ToastProvider>
       </AuthProvider>
     </ThemeProvider>
   );

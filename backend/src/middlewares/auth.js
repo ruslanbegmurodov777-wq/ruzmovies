@@ -25,6 +25,7 @@ export const protect = async (req, res, next) => {
         "cover",
         "channelDescription",
         "isAdmin",
+        "isOwner",
       ],
       where: {
         id: decoded.id,
@@ -42,13 +43,24 @@ export const protect = async (req, res, next) => {
 };
 
 export const admin = async (req, res, next) => {
-  if (req.user.isAdmin) {
+  if (req.user.isAdmin || req.user.isOwner) {
     return next();
   }
 
   return next({
     message: "Authorization denied, only admins can visit this route",
     statusCode: 401,
+  });
+};
+
+export const owner = async (req, res, next) => {
+  if (req.user.isOwner) {
+    return next();
+  }
+
+  return next({
+    message: "Authorization denied, only site owner can visit this route",
+    statusCode: 403,
   });
 };
 
@@ -75,6 +87,7 @@ export const optionalAuth = async (req, res, next) => {
         "cover",
         "channelDescription",
         "isAdmin",
+        "isOwner",
       ],
       where: {
         id: decoded.id,

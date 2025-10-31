@@ -1,17 +1,25 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import { useToast } from "../components/ToastContainer";
 import api from "../utils/api"; // Import the configured api instance
+import CategoryManager from "../components/CategoryManager";
+import ConfirmModal from "../components/ConfirmModal";
 import "./AdminPanel.css";
 
 const AdminPanel = () => {
-  const { isAuthenticated, isAdmin } = useAuth();
+  const { isAuthenticated, isAdmin, isOwner } = useAuth();
+  const { showSuccess, showError } = useToast();
   const [activeTab, setActiveTab] = useState("videos");
   const [videos, setVideos] = useState([]);
   const [users, setUsers] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [videoSearchTerm, setVideoSearchTerm] = useState("");
+  const [userSearchTerm, setUserSearchTerm] = useState("");
+  const [confirmModal, setConfirmModal] = useState({ isOpen: false, title: '', message: '', onConfirm: null, type: 'danger' });
   const [stats, setStats] = useState({
     totalUsers: 0,
     totalVideos: 0,
@@ -83,52 +91,120 @@ const AdminPanel = () => {
     }
   }, []);
 
+  const fetchCategories = useCallback(async () => {
+    try {
+      const response = await api.get('/categories');
+      if (response.data.success) {
+        setCategories(response.data.data);
+      }
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  }, []);
+
   useEffect(() => {
-    if (isAuthenticated && isAdmin) {
+    if (isAuthenticated && (isAdmin || isOwner)) {
       fetchStats();
+      fetchCategories();
       if (activeTab === "videos") {
         fetchVideos();
       } else if (activeTab === "users") {
         fetchUsers();
       }
-    } else if (isAuthenticated && !isAdmin) {
+    } else if (isAuthenticated && !isAdmin && !isOwner) {
       setError("Admin access required. Please login with admin credentials.");
     } else if (!isAuthenticated) {
       setError("Please login to access admin panel.");
     }
-  }, [activeTab, isAuthenticated, isAdmin, fetchStats, fetchVideos, fetchUsers]);
+  }, [
+    activeTab,
+    isAuthenticated,
+    isAdmin,
+    isOwner,
+    fetchStats,
+    fetchCategories,
+    fetchVideos,
+    fetchUsers,
+  ]);
 
-  const deleteVideo = useCallback(async (videoId) => {
-    if (window.confirm("Are you sure you want to delete this video?")) {
-      try {
-        await api.delete(`/admin/videos/${videoId}`);
-        setSuccess("Video deleted successfully");
-        fetchVideos(); // Refresh the list
-        fetchStats(); // Update stats
-        setTimeout(() => setSuccess(""), 3000);
-      } catch (error) {
-        const errorMsg =
-          error.response?.data?.message || "Failed to delete video";
-        setError(errorMsg);
-      }
-    }
-  }, [fetchVideos, fetchStats]);
+  const deleteVideo = useCallback(
+    (videoId, videoTitle) => {
+      setConfirmModal({
+        isOpen: true,
+        title: 'Delete Video',
+        message: `Are you sure you want to delete "${videoTitle}"? This action cannot be undone.`,
+        type: 'danger',
+        onConfirm: async () => {
+          try {
+            await api.delete(`/admin/videos/${videoId}`);
+            showSuccess("Video deleted successfully");
+            fetchVideos();
+            fetchStats();
+            setConfirmModal({ isOpen: false });
+          } catch (error) {
+            const errorMsg = error.response?.data?.message || "Failed to delete video";
+            showError(errorMsg);
+            setConfirmModal({ isOpen: false });
+          }
+        }
+      });
+    },
+    [fetchVideos, fetchStats, showSuccess, showError]
+  );
 
-  const deleteUser = useCallback(async (username) => {
-    if (window.confirm("Are you sure you want to delete this user?")) {
-      try {
-        await api.delete(`/admin/users/${username}`);
-        setSuccess("User deleted successfully");
-        fetchUsers(); // Refresh the list
-        fetchStats(); // Update stats
-        setTimeout(() => setSuccess(""), 3000);
-      } catch (error) {
-        const errorMsg =
-          error.response?.data?.message || "Failed to delete user";
-        setError(errorMsg);
-      }
-    }
-  }, [fetchUsers, fetchStats]);
+  const deleteUser = useCallback(
+    (username, displayName) => {
+      setConfirmModal({
+        isOpen: true,
+        title: 'Delete User',
+        message: `Are you sure you want to delete user "${displayName}" (@${username})? This action cannot be undone.`,
+        type: 'danger',
+        onConfirm: async () => {
+          try {
+            await api.delete(`/admin/users/${username}`);
+            showSuccess("User deleted successfully");
+            fetchUsers();
+            fetchStats();
+            setConfirmModal({ isOpen: false });
+          } catch (error) {
+            const errorMsg = error.response?.data?.message || "Failed to delete user";
+            showError(errorMsg);
+            setConfirmModal({ isOpen: false });
+          }
+        }
+      });
+    },
+    [fetchUsers, fetchStats, showSuccess, showError]
+  );
+
+  const toggleAdminStatus = useCallback(
+    (userId, currentStatus, userName) => {
+      const action = currentStatus ? "Remove Admin Status" : "Make Admin";
+      const message = currentStatus 
+        ? `Are you sure you want to remove admin privileges from ${userName}?`
+        : `Are you sure you want to grant admin privileges to ${userName}?`;
+      
+      setConfirmModal({
+        isOpen: true,
+        title: action,
+        message,
+        type: currentStatus ? 'warning' : 'success',
+        onConfirm: async () => {
+          try {
+            await api.post(`/users/${userId}/toggle-admin`);
+            showSuccess(currentStatus ? "Admin privileges removed successfully" : "User promoted to admin successfully");
+            fetchUsers();
+            setConfirmModal({ isOpen: false });
+          } catch (error) {
+            const errorMsg = error.response?.data?.message || "Failed to update admin status";
+            showError(errorMsg);
+            setConfirmModal({ isOpen: false });
+          }
+        }
+      });
+    },
+    [fetchUsers, showSuccess, showError]
+  );
 
   const startEditVideo = useCallback((video) => {
     setEditingVideo(video.id);
@@ -154,28 +230,50 @@ const AdminPanel = () => {
     });
   }, []);
 
-  const updateVideo = useCallback(async (videoId) => {
-    try {
-      await api.put(`/admin/videos/${videoId}`, editForm);
-      setSuccess("Video updated successfully");
-      setEditingVideo(null);
-      fetchVideos(); // Refresh the list
-      fetchStats(); // Update stats
-      setTimeout(() => setSuccess(""), 3000);
-    } catch (error) {
-      const errorMsg =
-        error.response?.data?.message || "Failed to update video";
-      setError(errorMsg);
-    }
-  }, [editForm, fetchVideos, fetchStats]);
+  const updateVideo = useCallback(
+    async (videoId) => {
+      try {
+        await api.put(`/admin/videos/${videoId}`, editForm);
+        setSuccess("Video updated successfully");
+        setEditingVideo(null);
+        fetchVideos(); // Refresh the list
+        fetchStats(); // Update stats
+        setTimeout(() => setSuccess(""), 3000);
+      } catch (error) {
+        const errorMsg =
+          error.response?.data?.message || "Failed to update video";
+        setError(errorMsg);
+      }
+    },
+    [editForm, fetchVideos, fetchStats]
+  );
 
-  const noVideosMessage = useMemo(() => (
-    <p>No videos found</p>
-  ), []);
+  const noVideosMessage = useMemo(() => <p>No videos found</p>, []);
 
-  const noUsersMessage = useMemo(() => (
-    <p>No users found</p>
-  ), []);
+  const noUsersMessage = useMemo(() => <p>No users found</p>, []);
+
+  // Filter videos based on search term
+  const filteredVideos = useMemo(() => {
+    if (!videoSearchTerm.trim()) return videos;
+    const search = videoSearchTerm.toLowerCase();
+    return videos.filter(video => 
+      video.title?.toLowerCase().includes(search) ||
+      video.description?.toLowerCase().includes(search) ||
+      video.category?.toLowerCase().includes(search)
+    );
+  }, [videos, videoSearchTerm]);
+
+  // Filter users based on search term
+  const filteredUsers = useMemo(() => {
+    if (!userSearchTerm.trim()) return users;
+    const search = userSearchTerm.toLowerCase();
+    return users.filter(user =>
+      user.firstname?.toLowerCase().includes(search) ||
+      user.lastname?.toLowerCase().includes(search) ||
+      user.username?.toLowerCase().includes(search) ||
+      user.email?.toLowerCase().includes(search)
+    );
+  }, [users, userSearchTerm]);
 
   if (!isAuthenticated) {
     return (
@@ -187,7 +285,7 @@ const AdminPanel = () => {
     );
   }
 
-  if (!isAdmin) {
+  if (!isAdmin && !isOwner) {
     return (
       <div className="admin-panel">
         <div className="admin-container">
@@ -203,9 +301,7 @@ const AdminPanel = () => {
         <div className="admin-header">
           <h1>
             🎛️ Admin Control Panel
-            <span className="mini-stat">
-              🎬 {stats.totalVideos}
-            </span>
+            <span className="mini-stat">🎬 {stats.totalVideos}</span>
           </h1>
           <Link to="/upload" className="upload-link">
             ➕ Upload New Video
@@ -223,6 +319,12 @@ const AdminPanel = () => {
             Manage Videos
           </button>
           <button
+            className={`tab ${activeTab === "categories" ? "active" : ""}`}
+            onClick={() => setActiveTab("categories")}
+          >
+            Manage Categories
+          </button>
+          <button
             className={`tab ${activeTab === "users" ? "active" : ""}`}
             onClick={() => setActiveTab("users")}
           >
@@ -235,9 +337,20 @@ const AdminPanel = () => {
 
           {activeTab === "videos" && !loading && (
             <div className="videos-section">
-              <h2>Videos Management</h2>
+              <div className="section-header">
+                <h2>Videos Management</h2>
+                <input
+                  type="text"
+                  placeholder="🔍 Search videos by title, description, or category..."
+                  value={videoSearchTerm}
+                  onChange={(e) => setVideoSearchTerm(e.target.value)}
+                  className="search-input"
+                />
+              </div>
               {videos.length === 0 ? (
                 noVideosMessage
+              ) : filteredVideos.length === 0 ? (
+                <p>No videos match your search</p>
               ) : (
                 <div className="videos-table">
                   <table>
@@ -253,11 +366,15 @@ const AdminPanel = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {videos.map((video) => (
+                      {filteredVideos.map((video) => (
                         <tr key={video.id}>
                           <td>
                             <img
-                              src={video.thumbnailFileUrl || video.thumbnail || "/placeholder-thumbnail.jpg"}
+                              src={
+                                video.thumbnailFileUrl ||
+                                video.thumbnail ||
+                                "/placeholder-thumbnail.jpg"
+                              }
                               alt={video.title}
                               className="video-thumb"
                               loading="lazy"
@@ -295,10 +412,20 @@ const AdminPanel = () => {
                                 }
                                 className="edit-select"
                               >
-                                <option value="movies">Movies</option>
-                                <option value="music">Music</option>
-                                <option value="dramas">Dramas</option>
-                                <option value="cartoons">Cartoons</option>
+                                {categories.length > 0 ? (
+                                  categories.map((cat) => (
+                                    <option key={cat.id} value={cat.slug}>
+                                      {cat.name}
+                                    </option>
+                                  ))
+                                ) : (
+                                  <>
+                                    <option value="movies">Movies</option>
+                                    <option value="music">Music</option>
+                                    <option value="dramas">Dramas</option>
+                                    <option value="cartoons">Cartoons</option>
+                                  </>
+                                )}
                               </select>
                             ) : (
                               <span
@@ -348,8 +475,7 @@ const AdminPanel = () => {
                                     })
                                   }
                                 />
-                                <span className="toggle-slider"></span>
-                                Top Rated
+                                <span className="toggle-label">Top Rated</span>
                               </label>
                             ) : (
                               <span
@@ -397,7 +523,7 @@ const AdminPanel = () => {
                                     👁️
                                   </Link>
                                   <button
-                                    onClick={() => deleteVideo(video.id)}
+                                    onClick={() => deleteVideo(video.id, video.title)}
                                     className="delete-btn"
                                     title="Delete Video"
                                   >
@@ -416,11 +542,26 @@ const AdminPanel = () => {
             </div>
           )}
 
+          {activeTab === "categories" && (
+            <CategoryManager />
+          )}
+
           {activeTab === "users" && !loading && (
             <div className="users-section">
-              <h2>Users Management</h2>
+              <div className="section-header">
+                <h2>Users Management</h2>
+                <input
+                  type="text"
+                  placeholder="🔍 Search users by name, username, or email..."
+                  value={userSearchTerm}
+                  onChange={(e) => setUserSearchTerm(e.target.value)}
+                  className="search-input"
+                />
+              </div>
               {users.length === 0 ? (
                 noUsersMessage
+              ) : filteredUsers.length === 0 ? (
+                <p>No users match your search</p>
               ) : (
                 <div className="users-table">
                   <table>
@@ -435,18 +576,25 @@ const AdminPanel = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {users.map((user) => (
+                      {filteredUsers.map((user) => (
                         <tr key={user.id}>
                           <td>
-                            <div className="user-avatar">
-                              {user.avatar ? (
-                                <img src={user.avatar} alt={user.username} />
-                              ) : (
-                                <div className="default-avatar">
-                                  {user.username?.[0]?.toUpperCase()}
-                                </div>
-                              )}
-                            </div>
+                            {user.avatar ? (
+                              <div className="user-avatar">
+                                <img 
+                                  src={user.avatar} 
+                                  alt={user.firstname || user.username}
+                                  onError={(e) => {
+                                    e.target.style.display = 'none';
+                                    e.target.parentElement.innerHTML = `<div class="default-avatar">${(user.firstname?.[0] || user.username?.[0] || 'U').toUpperCase()}</div>`;
+                                  }}
+                                />
+                              </div>
+                            ) : (
+                              <div className="default-avatar">
+                                {(user.firstname?.[0] || user.username?.[0] || 'U').toUpperCase()}
+                              </div>
+                            )}
                           </td>
                           <td>
                             {user.firstname} {user.lastname}
@@ -456,10 +604,10 @@ const AdminPanel = () => {
                           <td>
                             <span
                               className={`admin-badge ${
-                                user.isAdmin ? "admin" : "user"
+                                user.isOwner ? "owner" : user.isAdmin ? "admin" : "user"
                               }`}
                             >
-                              {user.isAdmin ? "🛡️ Admin" : "👤 User"}
+                              {user.isOwner ? "👑 Owner" : user.isAdmin ? "🛡️ Admin" : "👤 User"}
                             </span>
                           </td>
                           <td>
@@ -471,9 +619,18 @@ const AdminPanel = () => {
                               >
                                 👁️
                               </Link>
+                              {isOwner && !user.isOwner && (
+                                <button
+                                  onClick={() => toggleAdminStatus(user.id, user.isAdmin, `${user.firstname} ${user.lastname}`)}
+                                  className={user.isAdmin ? "remove-admin-btn" : "make-admin-btn"}
+                                  title={user.isAdmin ? "Remove Admin" : "Make Admin"}
+                                >
+                                  {user.isAdmin ? "⬇️ Remove Admin" : "⬆️ Make Admin"}
+                                </button>
+                              )}
                               {!user.isAdmin && (
                                 <button
-                                  onClick={() => deleteUser(user.username)}
+                                  onClick={() => deleteUser(user.username, `${user.firstname} ${user.lastname}`)}
                                   className="delete-btn"
                                   title="Delete User"
                                 >
@@ -492,6 +649,17 @@ const AdminPanel = () => {
           )}
         </div>
       </div>
+      
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        type={confirmModal.type}
+        onConfirm={confirmModal.onConfirm}
+        onCancel={() => setConfirmModal({ isOpen: false })}
+        confirmText={confirmModal.type === 'danger' ? 'Delete' : confirmModal.type === 'warning' ? 'Remove' : 'Confirm'}
+        cancelText="Cancel"
+      />
     </div>
   );
 };

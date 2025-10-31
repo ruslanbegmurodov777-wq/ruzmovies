@@ -30,7 +30,7 @@ export default (sequelize, DataTypes) => {
       defaultValue: true,
     },
     category: {
-      type: DataTypes.ENUM('movies', 'music', 'dramas', 'cartoons'),
+      type: DataTypes.STRING,
       allowNull: false,
       defaultValue: 'movies',
     },

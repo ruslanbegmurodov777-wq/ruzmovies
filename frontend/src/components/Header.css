@@ -461,7 +461,7 @@ body.dark-theme .hamburger-line {
   .header-container {
     padding: 0.7rem 0.8rem;
     flex-wrap: nowrap;
-    gap: 0.35rem; /* reduce space between home and search */
+    gap: 0.4rem;
   }
 
   .logo-text {
@@ -472,28 +472,38 @@ body.dark-theme .hamburger-line {
     display: block;
   }
 
+  .logo {
+    flex-shrink: 0;
+    min-width: 30px;
+  }
+
   .search-form {
-    margin: 0 0.25rem 0 0; /* tighter gap before hamburger */
+    margin: 0;
     flex: 1 1 auto;
     min-width: 0;
-    max-width: calc(100vw - 210px); /* guarantee room for logo + buttons on many phones */
+    max-width: calc(100% - 120px);
+    margin-right: 0.5rem;
   }
 
   .search-input {
     font-size: 14px;
-    padding: 0.6rem 0.8rem;
+    padding: 0.55rem 0.7rem;
   }
 
   .search-button {
-    padding: 0.6rem 0.9rem;
-    font-size: 14px;
+    padding: 0.55rem 0.8rem;
+    font-size: 13px;
     position: relative;
-    z-index: 3; /* keep above hamburger just in case */
+    z-index: 1;
+    white-space: nowrap;
+    flex-shrink: 0;
   }
 
   .header-right {
     order: 3;
     position: relative;
+    flex-shrink: 0;
+    margin-left: auto;
   }
 
   .desktop-theme-toggle {
@@ -555,9 +565,9 @@ body.dark-theme .hamburger-line {
   .mobile-menu-toggle {
     display: flex;
     position: relative;
-    z-index: 2; /* below search button to avoid visual overlap */
-    margin-left: 6px; /* small gap from Search */
-    flex-shrink: 0; /* prevent squeezing over Search */
+    z-index: 1; /* search button bilan bir xil */
+    margin-left: 0; /* margin olib tashlaymiz */
+    flex-shrink: 0; /* siqilishini oldini olish */
   }
 
   .nav {
@@ -815,11 +825,33 @@ body.dark-theme .hamburger-line {
   }
 }
 
-/* Extra small mobile devices (below 390px) - prevent menu overlap on search */
+/* Medium mobile devices (below 500px) */
+@media (max-width: 500px) {
+  .header-container {
+    gap: 0.3rem;
+    padding: 0.65rem 0.75rem;
+  }
+
+  .search-form {
+    max-width: calc(100% - 100px);
+  }
+
+  .search-input {
+    font-size: 13px;
+    padding: 0.5rem 0.65rem;
+  }
+
+  .search-button {
+    padding: 0.5rem 0.7rem;
+    font-size: 12px;
+  }
+}
+
+/* Small mobile devices (below 390px) */
 @media (max-width: 390px) {
   .header-container {
-    padding: 0.6rem 0.7rem;
-    gap: 0.18rem;
+    padding: 0.6rem 0.65rem;
+    gap: 0.25rem;
     justify-content: space-between;
     flex-wrap: nowrap;
   }
@@ -827,28 +859,30 @@ body.dark-theme .hamburger-line {
   .logo {
     flex-shrink: 0;
     order: 1;
+    min-width: 25px;
   }
 
   .home-icon {
-    font-size: 1.4rem;
+    font-size: 1.3rem;
   }
 
   .search-form {
     flex: 1;
-    min-width: 80px;
-    max-width: calc(100vw - 190px); /* reserve more space for menu & icons */
-    margin: 0 0.25rem;
+    min-width: 0;
+    max-width: calc(100% - 90px);
+    margin: 0;
+    margin-right: 0.3rem;
     order: 2;
   }
 
   .search-input {
     font-size: 12px;
-    padding: 0.45rem 0.5rem;
-    min-width: 60px;
+    padding: 0.45rem 0.55rem;
+    min-width: 0;
   }
 
   .search-button {
-    padding: 0.45rem 0.55rem;
+    padding: 0.5rem 0.7rem;
     font-size: 12px;
     flex-shrink: 0;
   }
@@ -857,12 +891,12 @@ body.dark-theme .hamburger-line {
     flex-shrink: 0;
     min-width: auto;
     order: 3;
+    margin-left: 0.5rem;
   }
 
   .mobile-menu-toggle {
-    padding: 0.2rem;
-    min-width: 28px;
-    max-width: 28px;
+    padding: 0.3rem;
+    min-width: 30px;
     flex-shrink: 0;
   }
 
@@ -873,37 +907,45 @@ body.dark-theme .hamburger-line {
   }
 }
 
-/* Very small screens (below 320px) - extreme mobile optimization */
+/* Very small screens (below 320px) */
 @media (max-width: 320px) {
   .header-container {
-    padding: 0.4rem 0.6rem;
-    gap: 0.1rem;
+    padding: 0.5rem 0.55rem;
+    gap: 0.2rem;
+  }
+
+  .logo {
+    min-width: 22px;
   }
 
   .search-form {
-    max-width: calc(100vw - 120px);
-    margin: 0 0.2rem;
+    max-width: calc(100% - 80px);
+    margin: 0;
+    margin-right: 0.25rem;
   }
 
   .search-input {
     font-size: 11px;
-    padding: 0.4rem 0.4rem;
-    min-width: 50px;
+    padding: 0.4rem 0.45rem;
+    min-width: 0;
   }
 
   .search-button {
-    padding: 0.4rem 0.5rem;
+    padding: 0.4rem 0.55rem;
     font-size: 11px;
   }
 
   .home-icon {
-    font-size: 1.2rem;
+    font-size: 1.15rem;
+  }
+
+  .header-right {
+    margin-left: auto;
   }
 
   .mobile-menu-toggle {
-    padding: 0.2rem;
+    padding: 0.25rem;
     min-width: 28px;
-    max-width: 28px;
   }
 
   .hamburger-line {

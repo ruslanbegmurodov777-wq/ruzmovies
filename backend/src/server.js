@@ -6,6 +6,7 @@ import auth from "./routes/auth.js";
 import admin from "./routes/admin.js";
 import video from "./routes/video.js";
 import user from "./routes/user.js";
+import categories from "./routes/categories.js";
 import errorHandler from "./middlewares/errorHandler.js";
 
 // Import sequelize and models
@@ -42,6 +43,7 @@ app.use("/api/v1/auth", auth);
 app.use("/api/v1/admin", admin);
 app.use("/api/v1/videos", video);
 app.use("/api/v1/users", user);
+app.use("/api/v1/categories", categories);
 
 // Health check
 app.get("/api/health", (req, res) => {

@@ -7,7 +7,7 @@ import "./Header.css";
 import homeIcon from "../img/home-button.png";
 
 const Header = () => {
-  const { logout, isAuthenticated, isAdmin } = useAuth();
+  const { logout, isAuthenticated, isAdmin, isOwner } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
@@ -75,7 +75,7 @@ const Header = () => {
     <header className="header">
       <div className="header-container">
         <Link to="/" className="logo">
-          <h1 className="logo-text">Ruzmovie</h1>
+          <h1 className="logo-text">RuzTube</h1>
           <div className="home-icon">
             <img
               src={homeIcon}
@@ -101,13 +101,10 @@ const Header = () => {
         <nav className="nav">
           {isAuthenticated ? (
             <>
-              {isAdmin && (
-                <>
-                  <span className="admin-badge">ADMIN</span>
-                  <Link to="/admin" className="nav-link admin-link">
-                    Admin Panel
-                  </Link>
-                </>
+              {(isAdmin || isOwner) && (
+                <Link to="/admin" className="nav-link admin-link">
+                  Admin Panel
+                </Link>
               )}
               <Link to="/profile" className="nav-link profile-link">
                 Profile
@@ -155,19 +152,17 @@ const Header = () => {
                     <ThemeToggle />
                     <span className="theme-icon moon-icon">🌙</span>
                   </div>
+
                   {isAuthenticated ? (
                     <>
-                      {isAdmin && (
-                        <>
-                          <span className="admin-badge">ADMIN</span>
-                          <Link
-                            to="/admin"
-                            className="nav-link admin-link"
-                            onClick={closeMenu}
-                          >
-                            Admin Panel
-                          </Link>
-                        </>
+                      {(isAdmin || isOwner) && (
+                        <Link
+                          to="/admin"
+                          className="nav-link admin-link"
+                          onClick={closeMenu}
+                        >
+                          Admin Panel
+                        </Link>
                       )}
                       <Link
                         to="/profile"

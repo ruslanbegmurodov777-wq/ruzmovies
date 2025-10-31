@@ -433,3 +433,48 @@ const getVideos = async (model, req, res, next) => {
 
   res.status(200).json({ success: true, data: videos });
 };
+
+// Toggle admin status - only site owner can do this
+export const toggleAdmin = asyncHandler(async (req, res, next) => {
+  const { userId } = req.params;
+
+  // Check if requesting user is owner
+  if (!req.user.isOwner) {
+    return next({
+      message: "Only site owner can manage admin status",
+      statusCode: 403,
+    });
+  }
+
+  const targetUser = await User.findByPk(userId);
+  if (!targetUser) {
+    return next({
+      message: `User not found with ID: ${userId}`,
+      statusCode: 404,
+    });
+  }
+
+  // Cannot change owner's admin status
+  if (targetUser.isOwner) {
+    return next({
+      message: "Cannot change site owner's admin status",
+      statusCode: 400,
+    });
+  }
+
+  // Toggle admin status
+  const newAdminStatus = !targetUser.isAdmin;
+  await User.update(
+    { isAdmin: newAdminStatus },
+    { where: { id: userId } }
+  );
+
+  res.status(200).json({ 
+    success: true, 
+    data: { 
+      userId, 
+      isAdmin: newAdminStatus,
+      message: newAdminStatus ? 'User promoted to admin' : 'Admin status removed'
+    } 
+  });
+});

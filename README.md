@@ -1,6 +1,6 @@
-# Ruzmovie - Full Stack Movie Streaming Platform
+# RuzTube - Full Stack Video Streaming Platform
 
-Ruzmovie is a full-stack movie streaming platform built with React, Node.js, Express, and MySQL. It allows users to stream, upload, and manage videos with user authentication and admin controls.
+RuzTube is a full-stack video streaming platform built with React, Node.js, Express, and MySQL. It allows users to stream, upload, and manage videos with user authentication and admin controls.
 
 ## Features
 

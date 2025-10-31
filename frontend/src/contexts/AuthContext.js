@@ -103,6 +103,7 @@ export const AuthProvider = ({ children }) => {
     loading,
     isAuthenticated: !!user,
     isAdmin: !!user?.isAdmin,
+    isOwner: !!user?.isOwner,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import api from "../utils/api"; // Import the configured api instance
@@ -29,6 +29,26 @@ const Upload = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [categories, setCategories] = useState([]);
+
+  // Fetch categories from API
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch('/api/v1/categories');
+        const data = await response.json();
+        if (data.success && data.data.length > 0) {
+          setCategories(data.data);
+          // Set first category as default
+          setFormData(prev => ({ ...prev, category: data.data[0].slug }));
+        }
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+      }
+    };
+    fetchCategories();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleFileChange = useCallback((e) => {
     const files = e.target.files;
@@ -283,16 +303,20 @@ const Upload = () => {
             <div className="form-group">
               <label htmlFor="category">Category *</label>
               <select
-                id="category"
                 name="category"
                 value={formData.category}
                 onChange={handleInputChange}
                 required
               >
-                <option value="movies">Movies</option>
-                <option value="music">Music</option>
-                <option value="dramas">Dramas</option>
-                <option value="cartoons">Cartoons</option>
+                {categories.length === 0 ? (
+                  <option value="movies">Movies</option>
+                ) : (
+                  categories.map((cat) => (
+                    <option key={cat.id} value={cat.slug}>
+                      {cat.name}
+                    </option>
+                  ))
+                )}
               </select>
             </div>
 

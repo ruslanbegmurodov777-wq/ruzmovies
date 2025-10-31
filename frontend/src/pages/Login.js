@@ -43,20 +43,20 @@ const Login = () => {
   return (
     <div className="auth-container">
       <div className="auth-card">
-        <h2>Login to MovieTube</h2>
+        <h2>Login to RuzTube</h2>
         {error && <div className="error-message">{error}</div>}
         
         <form onSubmit={handleSubmit} className="auth-form">
           <div className="form-group">
-            <label htmlFor="email">Email</label>
+            <label htmlFor="email">Email or Username</label>
             <input
-              type="email"
+              type="text"
               id="email"
               name="email"
               value={formData.email}
               onChange={handleChange}
               required
-              placeholder="Enter your email"
+              placeholder="Enter your email or username"
             />
           </div>
 

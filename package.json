@@ -20,7 +20,7 @@
     "nodejs",
     "express"
   ],
-  "author": "Ruzmovie Team",
+  "author": "RuzTube Team",
   "license": "MIT",
   "devDependencies": {
     "concurrently": "^9.2.1",

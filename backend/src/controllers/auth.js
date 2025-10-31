@@ -24,11 +24,19 @@ export const signup = asyncHandler(async (req, res, next) => {
 export const login = asyncHandler(async (req, res, next) => {
   const { email, password } = req.body;
 
-  const user = await User.findOne({ where: { email } });
+  // Find user by email OR username
+  const user = await User.findOne({ 
+    where: { 
+      [Op.or]: [
+        { email: email },
+        { username: email } // 'email' field can contain username too
+      ]
+    } 
+  });
 
   if (!user) {
     return next({
-      message: "The email is not yet registered",
+      message: "The email or username is not registered",
       statusCode: 400,
     });
   }
@@ -61,6 +69,7 @@ export const me = async (req, res) => {
       "cover",
       "channelDescription",
       "isAdmin",
+      "isOwner",
     ],
   });
 

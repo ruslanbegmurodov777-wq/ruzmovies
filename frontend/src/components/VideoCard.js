@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from "react";
+import React, { useState, useCallback, useMemo, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
   getVideoType,
@@ -10,7 +10,10 @@ import "./VideoCard.css";
 
 const VideoCard = React.memo(({ video }) => {
   const [isHovered, setIsHovered] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
   const { isStarred, toggleStarred } = useStarred();
+  const hoverTimeoutRef = useRef(null);
+  const cardRef = useRef(null);
 
   // Always define hooks at the top level
   const getThumbnail = useCallback(() => {
@@ -92,6 +95,32 @@ const VideoCard = React.memo(({ video }) => {
     }
   }, [toggleStarred, video]);
 
+  const handleMouseEnter = useCallback(() => {
+    setIsHovered(true);
+    // Delay preview iframe loading to avoid loading unnecessary previews
+    hoverTimeoutRef.current = setTimeout(() => {
+      setShowPreview(true);
+    }, 500);
+  }, []);
+
+  const handleMouseLeave = useCallback(() => {
+    setIsHovered(false);
+    setShowPreview(false);
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+      hoverTimeoutRef.current = null;
+    }
+  }, []);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (hoverTimeoutRef.current) {
+        clearTimeout(hoverTimeoutRef.current);
+      }
+    };
+  }, []);
+
   const thumbnailUrl = useMemo(() => getThumbnail(), [getThumbnail]);
   const videoPreviewUrl = useMemo(() => getVideoPreview(), [getVideoPreview]);
   const viewsFormatted = useMemo(() => {
@@ -117,9 +146,10 @@ const VideoCard = React.memo(({ video }) => {
 
   return (
     <div
+      ref={cardRef}
       className={`video-card floating-element ${isHovered ? "hovered" : ""}`}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
       <Link to={`/video/${video.id}`} className="video-link">
         <div className="video-thumbnail">
@@ -136,7 +166,7 @@ const VideoCard = React.memo(({ video }) => {
             ⭐
           </button>
 
-          {isHovered && videoPreviewUrl ? (
+          {showPreview && videoPreviewUrl ? (
             <iframe
               src={videoPreviewUrl}
               className="video-preview"
@@ -144,6 +174,7 @@ const VideoCard = React.memo(({ video }) => {
               allow="autoplay; encrypted-media"
               allowFullScreen
               title={`Preview of ${video.title}`}
+              loading="lazy"
             />
           ) : (
             <img
@@ -173,22 +204,27 @@ const VideoCard = React.memo(({ video }) => {
         <div className="video-info">
           <h3 className="video-title">{video.title || "Untitled Video"}</h3>
           <div className="video-meta">
-            <span className="video-author">
-              {video.User?.username || "Unknown User"}
-            </span>
-            <div className="video-stats">
-              <span>{viewsFormatted} views</span>
-              {dateFormatted && (
-                <>
-                  <span className="dot">•</span>
-                  <span>{dateFormatted}</span>
-                </>
-              )}
-            </div>
+            <span>{viewsFormatted} views</span>
+            {dateFormatted && (
+              <>
+                <span className="dot"></span>
+                <span>{dateFormatted}</span>
+              </>
+            )}
           </div>
         </div>
       </Link>
     </div>
+  );
+}, (prevProps, nextProps) => {
+  // Custom comparison function to prevent unnecessary re-renders
+  // Only re-render if video id or key properties change
+  return (
+    prevProps.video?.id === nextProps.video?.id &&
+    prevProps.video?.title === nextProps.video?.title &&
+    prevProps.video?.views === nextProps.video?.views &&
+    prevProps.video?.thumbnail === nextProps.video?.thumbnail &&
+    prevProps.video?.thumbnailFileUrl === nextProps.video?.thumbnailFileUrl
   );
 });
 

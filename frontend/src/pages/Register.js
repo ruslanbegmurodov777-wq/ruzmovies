@@ -54,7 +54,7 @@ const Register = () => {
   return (
     <div className="auth-container">
       <div className="auth-card">
-        <h2>Join MovieTube</h2>
+        <h2>Join RuzTube</h2>
         {error && <div className="error-message">{error}</div>}
         
         <form onSubmit={handleSubmit} className="auth-form">

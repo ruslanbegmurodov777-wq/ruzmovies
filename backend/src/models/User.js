@@ -54,5 +54,11 @@ export default (sequelize, DataTypes) => {
       allowNull: false,
       defaultValue: false,
     },
+    isOwner: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+      comment: 'Site owner - super admin who can manage other admins'
+    },
   });
 };
