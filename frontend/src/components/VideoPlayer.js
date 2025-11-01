@@ -70,7 +70,7 @@ const VideoPlayer = ({ video, className = '', autoPlay = true }) => {
   switch (videoType) {
     case 'youtube':
       const youtubeId = getYouTubeVideoId(video.url);
-      const youtubeEmbedUrl = `https://www.youtube.com/embed/${youtubeId}?${autoPlay ? 'autoplay=1&' : ''}rel=0&modestbranding=1`;
+      const youtubeEmbedUrl = `https://www.youtube.com/embed/${youtubeId}?${autoPlay ? 'autoplay=1&' : ''}rel=0&modestbranding=1&showinfo=0&iv_load_policy=3&controls=1&fs=1&playsinline=1`;
       
       return (
         <iframe
@@ -78,12 +78,13 @@ const VideoPlayer = ({ video, className = '', autoPlay = true }) => {
           src={youtubeEmbedUrl}
           title={video.title}
           frameBorder="0"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
           allowFullScreen
           style={{
             width: '100%',
             height: '100%',
-            minHeight: '400px'
+            minHeight: '400px',
+            display: 'block'
           }}
         />
       );

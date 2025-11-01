@@ -2,13 +2,10 @@
   background: #ffffff;
   border-radius: 16px;
   overflow: hidden;
-  box-shadow: 
-    0 4px 12px rgba(0, 0, 0, 0.08),
-    0 2px 6px rgba(0, 0, 0, 0.05),
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.05),
     0 0 0 1px rgba(0, 0, 0, 0.05);
   transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-              box-shadow 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-              border-color 0.3s ease;
+    box-shadow 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), border-color 0.3s ease;
   cursor: pointer;
   position: relative;
   transform-origin: center;
@@ -17,14 +14,10 @@
   contain: layout style paint;
 }
 
- 
-
 .video-card:hover {
   transform: translateY(-8px) scale(1.03);
-  box-shadow: 
-    0 12px 32px rgba(0, 0, 0, 0.12),
-    0 6px 16px rgba(59, 130, 246, 0.1),
-    0 0 0 1px rgba(59, 130, 246, 0.15);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12),
+    0 6px 16px rgba(59, 130, 246, 0.1), 0 0 0 1px rgba(59, 130, 246, 0.15);
   border-color: rgba(59, 130, 246, 0.2);
 }
 
@@ -52,11 +45,7 @@
   height: 210px;
   overflow: hidden;
   border-radius: 16px 16px 0 0;
-  background: linear-gradient(135deg, 
-    #f8fafc 0%, 
-    #e2e8f0 50%, 
-    #cbd5e1 100%
-  );
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #cbd5e1 100%);
 }
 
 /* Star button for favorites */
@@ -92,7 +81,7 @@
     opacity: 0.8;
     transform: scale(1);
   }
-  
+
   .star-button.starred {
     opacity: 1;
   }
@@ -159,7 +148,7 @@
   background: #ffffff;
   border-radius: 0 0 16px 16px;
   box-shadow: none;
-  padding: 0.5rem 0.6rem;
+  padding: 0.4rem 0.5rem;
 }
 
 /* Even smaller padding for Profile page */
@@ -169,33 +158,33 @@
   padding: 0.25rem 0.3rem;
 }
 
-.video-title {
-  font-size: 0.88rem;
-  font-weight: 600;
-  margin: 0 0 0.3rem 0;
-  padding: 0;
-  line-height: 1.3;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+.video-card .video-title {
+  font-size: 0.8rem !important;
+  font-weight: 600 !important;
+  margin: 0 0 0.25rem 0 !important;
+  padding: 0 !important;
+  line-height: 1.25 !important;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 2 !important;
+  line-clamp: 2 !important;
+  -webkit-box-orient: vertical !important;
+  overflow: hidden !important;
   font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
-    sans-serif;
-  letter-spacing: -0.01em;
-  text-align: left;
-  cursor: default;
-  pointer-events: none;
+    sans-serif !important;
+  letter-spacing: -0.01em !important;
+  text-align: left !important;
+  cursor: default !important;
+  pointer-events: none !important;
   text-decoration: none !important;
-  background: transparent;
+  background: transparent !important;
   color: #0f172a !important;
-  text-shadow: none;
+  text-shadow: none !important;
 }
 
 /* Dark theme video title */
-.dark-theme .video-title {
+.dark-theme .video-card .video-title {
   color: #f8fafc !important;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
 }
 
 /* Slightly larger title for Profile page */
@@ -224,8 +213,8 @@
 .video-meta {
   display: flex !important;
   align-items: center;
-  gap: 0.4rem;
-  font-size: 0.72rem;
+  gap: 0.3rem;
+  font-size: 0.68rem;
   color: #475569;
   margin-top: 0;
   font-weight: 500;
@@ -243,9 +232,9 @@
 .video-stats {
   display: flex;
   align-items: center;
-  gap: 0.3rem;
+  gap: 0.25rem;
   color: #475569;
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   font-weight: 500;
 }
 
@@ -279,21 +268,21 @@
   }
 
   .video-info {
-    padding: 0.45rem 0.55rem;
+    padding: 0.35rem 0.45rem;
     box-shadow: none;
     background: #ffffff;
   }
 
-  .video-title {
-    font-size: 0.82rem;
-    margin: 0 0 0.28rem 0;
-    padding: 0;
-    line-height: 1.3;
+  .video-card .video-title {
+    font-size: 0.75rem !important;
+    margin: 0 0 0.2rem 0 !important;
+    padding: 0 !important;
+    line-height: 1.3 !important;
     color: #1e293b !important;
-    text-shadow: none;
-    text-align: left;
-    cursor: default;
-    pointer-events: none;
+    text-shadow: none !important;
+    text-align: left !important;
+    cursor: default !important;
+    pointer-events: none !important;
   }
 
   .profile-page .video-thumbnail {
@@ -301,12 +290,13 @@
   }
 
   .profile-page .video-info {
-    background: linear-gradient(135deg, 
-      #4682B4 0%,
-      #5F9EA0 25%, 
-      #6495ED 50%, 
-      #87CEEB 75%, 
-      #7FB4D4 100%
+    background: linear-gradient(
+      135deg,
+      #4682b4 0%,
+      #5f9ea0 25%,
+      #6495ed 50%,
+      #87ceeb 75%,
+      #7fb4d4 100%
     );
     padding: 0.2rem 0.25rem;
   }
@@ -331,21 +321,21 @@
   }
 
   .video-info {
-    padding: 0.48rem 0.58rem;
+    padding: 0.38rem 0.48rem;
     box-shadow: none;
     background: #ffffff;
   }
 
-  .video-title {
-    font-size: 0.85rem;
-    margin: 0 0 0.3rem 0;
-    padding: 0;
-    line-height: 1.3;
+  .video-card .video-title {
+    font-size: 0.78rem !important;
+    margin: 0 0 0.22rem 0 !important;
+    padding: 0 !important;
+    line-height: 1.3 !important;
     color: #1e293b !important;
-    text-shadow: none;
-    text-align: left;
-    cursor: default;
-    pointer-events: none;
+    text-shadow: none !important;
+    text-align: left !important;
+    cursor: default !important;
+    pointer-events: none !important;
   }
 
   .profile-page .video-title {
@@ -366,20 +356,20 @@
 
   .video-info {
     background: #ffffff;
-    padding: 0.5rem 0.6rem;
+    padding: 0.4rem 0.5rem;
     box-shadow: none;
   }
 
-  .video-title {
-    font-size: 0.86rem;
-    margin: 0 0 0.3rem 0;
-    padding: 0;
-    line-height: 1.3;
+  .video-card .video-title {
+    font-size: 0.79rem !important;
+    margin: 0 0 0.23rem 0 !important;
+    padding: 0 !important;
+    line-height: 1.3 !important;
     color: #1e293b !important;
-    text-shadow: none;
-    text-align: left;
-    cursor: default;
-    pointer-events: none;
+    text-shadow: none !important;
+    text-align: left !important;
+    cursor: default !important;
+    pointer-events: none !important;
   }
 
   .profile-page .video-title {
@@ -402,21 +392,21 @@
   }
 
   .video-info {
-    padding: 0.5rem 0.6rem;
+    padding: 0.4rem 0.5rem;
     box-shadow: none;
     background: #ffffff;
   }
 
-  .video-title {
-    font-size: 0.88rem;
-    margin: 0 0 0.3rem 0;
-    padding: 0;
-    line-height: 1.3;
+  .video-card .video-title {
+    font-size: 0.8rem !important;
+    margin: 0 0 0.25rem 0 !important;
+    padding: 0 !important;
+    line-height: 1.3 !important;
     color: #1e293b !important;
-    text-shadow: none;
-    text-align: left;
-    cursor: default;
-    pointer-events: none;
+    text-shadow: none !important;
+    text-align: left !important;
+    cursor: default !important;
+    pointer-events: none !important;
   }
 
   .profile-page .video-title {
@@ -434,16 +424,16 @@
 
 /* Screen size: ≥1025px */
 @media (min-width: 1025px) {
-  .video-title {
-    font-size: 0.88rem;
-    margin: 0 0 0.3rem 0;
-    padding: 0;
-    line-height: 1.3;
+  .video-card .video-title {
+    font-size: 0.8rem !important;
+    margin: 0 0 0.25rem 0 !important;
+    padding: 0 !important;
+    line-height: 1.25 !important;
     color: #1e293b !important;
-    text-shadow: none;
-    text-align: left;
-    cursor: default;
-    pointer-events: none;
+    text-shadow: none !important;
+    text-align: left !important;
+    cursor: default !important;
+    pointer-events: none !important;
   }
 
   .profile-page .video-title {
@@ -491,13 +481,13 @@
   border-top: none !important;
 }
 
-.dark-theme .video-title {
-  font-weight: 500;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.75);
+.dark-theme .video-card .video-title {
+  font-weight: 500 !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.75) !important;
   text-decoration: none !important;
   background: transparent !important;
-  -webkit-background-clip: initial;
-  background-clip: initial;
+  -webkit-background-clip: initial !important;
+  background-clip: initial !important;
   color: #f1f5f9 !important;
 }
 
@@ -541,9 +531,9 @@
 
 /* Dark theme responsive overrides */
 @media (max-width: 550px) {
-  .dark-theme .video-title {
+  .dark-theme .video-card .video-title {
     color: #f8fafc !important;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
   }
   .dark-theme .profile-page .video-title {
     color: #f8fafc !important;
@@ -552,9 +542,9 @@
 }
 
 @media (min-width: 551px) and (max-width: 650px) {
-  .dark-theme .video-title {
+  .dark-theme .video-card .video-title {
     color: #f8fafc !important;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
   }
   .dark-theme .profile-page .video-title {
     color: #f8fafc !important;
@@ -563,9 +553,9 @@
 }
 
 @media (min-width: 651px) and (max-width: 850px) {
-  .dark-theme .video-title {
+  .dark-theme .video-card .video-title {
     color: #f8fafc !important;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
   }
   .dark-theme .profile-page .video-title {
     color: #f8fafc !important;
@@ -574,9 +564,9 @@
 }
 
 @media (min-width: 851px) and (max-width: 1024px) {
-  .dark-theme .video-title {
+  .dark-theme .video-card .video-title {
     color: #f8fafc !important;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
   }
   .dark-theme .profile-page .video-title {
     color: #f8fafc !important;
@@ -585,9 +575,9 @@
 }
 
 @media (min-width: 1025px) {
-  .dark-theme .video-title {
+  .dark-theme .video-card .video-title {
     color: #f8fafc !important;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
   }
   .dark-theme .profile-page .video-title {
     color: #f8fafc !important;

@@ -18,6 +18,7 @@ const VideoWatch = () => {
   const [newComment, setNewComment] = useState("");
   const [submittingComment, setSubmittingComment] = useState(false);
   const [showAllComments, setShowAllComments] = useState(false);
+  const [showFullDescription, setShowFullDescription] = useState(false);
 
   const fetchVideo = useCallback(async () => {
     try {
@@ -36,12 +37,14 @@ const VideoWatch = () => {
 
       // Fetch related videos
       try {
-        const relatedResponse = await api.get('/videos', {
-          params: { limit: 12 }
+        const relatedResponse = await api.get("/videos", {
+          params: { limit: 12 },
         });
         const allVideos = relatedResponse.data.data || [];
         // Filter out current video and limit to 8
-        const filtered = allVideos.filter(v => v.id !== parseInt(id)).slice(0, 8);
+        const filtered = allVideos
+          .filter((v) => v.id !== parseInt(id))
+          .slice(0, 8);
         setRelatedVideos(filtered);
       } catch (relatedError) {
         // Silently handle related videos error
@@ -175,30 +178,30 @@ const VideoWatch = () => {
 
   const getVideoSource = useCallback(() => {
     // Check if video exists
-    if (!video) return '';
-    
+    if (!video) return "";
+
     // For file uploads, use the video file URL
     if (video.videoFileUrl) {
-      return video.videoFileUrl.startsWith('/api')
+      return video.videoFileUrl.startsWith("/api")
         ? video.videoFileUrl
         : `${api.defaults.baseURL}${video.videoFileUrl}`;
     }
     // For URL uploads, use the url property
-    return video.url || '';
+    return video.url || "";
   }, [video]);
 
   const getThumbnail = useCallback(() => {
     // Check if video exists
-    if (!video) return '';
-    
+    if (!video) return "";
+
     // For file uploads with thumbnail files, use the thumbnail file URL
     if (video.thumbnailFileUrl) {
-      return video.thumbnailFileUrl.startsWith('/api')
+      return video.thumbnailFileUrl.startsWith("/api")
         ? video.thumbnailFileUrl
         : `${api.defaults.baseURL}${video.thumbnailFileUrl}`;
     }
     // For URL uploads or videos with thumbnail URLs, use the thumbnail property
-    return video.thumbnail || '';
+    return video.thumbnail || "";
   }, [video]);
 
   const videoSource = useMemo(() => getVideoSource(), [getVideoSource]);
@@ -216,10 +219,10 @@ const VideoWatch = () => {
   return (
     <div className="video-watch">
       <div className="video-player-container">
-        <VideoPlayer 
-          video={{ ...video, url: videoSource, thumbnail: thumbnailUrl }} 
-          autoPlay={true} 
-          className="video-player" 
+        <VideoPlayer
+          video={{ ...video, url: videoSource, thumbnail: thumbnailUrl }}
+          autoPlay={true}
+          className="video-player"
         />
       </div>
 
@@ -231,9 +234,6 @@ const VideoWatch = () => {
             <div className="video-meta">
               <span>
                 {formatViews(video.views)} views • {formatDate(video.createdAt)}
-              </span>
-              <span className="comments-count">
-                {video.commentsCount || 0} Comments
               </span>
             </div>
             <div className="video-actions">
@@ -265,93 +265,127 @@ const VideoWatch = () => {
             </div>
           </div>
 
-          {video.description && (
-            <div className="video-description">
-              <p>{video.description}</p>
+          <div className="video-description">
+            <div
+              className={`description-text ${
+                showFullDescription ? "expanded" : "collapsed"
+              }`}
+            >
+              <p>{video.description || "No description available."}</p>
             </div>
-          )}
+            {video.description && video.description.length > 150 && (
+              <button
+                className="description-toggle"
+                onClick={() => setShowFullDescription(!showFullDescription)}
+                type="button"
+              >
+                {showFullDescription ? "Show less" : "Show more"}
+              </button>
+            )}
+          </div>
 
           <div className="comments-section">
-            {video.comments && video.comments.length > 0 && (
-              <div className="comments-list">
-                {(showAllComments ? video.comments : video.comments.slice(0, 1)).map((comment) => (
-                  <div key={comment.id} className="comment">
-                    <div className="comment-avatar">
-                      {comment.User?.avatar && /^https?:\/\//.test(comment.User.avatar) ? (
-                        <img
-                          src={comment.User.avatar}
-                          alt={comment.User.username}
-                          onError={(e) => {
-                            e.currentTarget.style.display = 'none';
-                          }}
-                        />
-                      ) : (
-                        <div className="default-avatar">
-                          {comment.User?.username?.[0]?.toUpperCase()}
-                        </div>
-                      )}
-                    </div>
-                    <div className="comment-content">
-                      <div className="comment-header">
-                        <span className="comment-author">
-                          {comment.User?.username}
-                        </span>
-                        <span className="comment-date">
-                          {formatDate(comment.createdAt)}
-                        </span>
+            <div className="comments-header">
+              <span className="comments-count-small">
+                {video.commentsCount || 0}{" "}
+                {(video.commentsCount || 0) === 1 ? "Comment" : "Comments"}
+              </span>
+            </div>
+            <div className="comments-block">
+              {video.comments && video.comments.length > 0 && (
+                <div
+                  className={`comments-scroll ${
+                    showAllComments ? "scroll" : ""
+                  }`}
+                >
+                  {(showAllComments
+                    ? video.comments
+                    : video.comments.slice(0, 1)
+                  ).map((comment) => (
+                    <div key={comment.id} className="comment">
+                      <div className="comment-avatar">
+                        {comment.User?.avatar &&
+                        /^https?:\/\//.test(comment.User.avatar) ? (
+                          <img
+                            src={comment.User.avatar}
+                            alt={comment.User.username}
+                            onError={(e) => {
+                              e.currentTarget.style.display = "none";
+                            }}
+                          />
+                        ) : (
+                          <div className="default-avatar">
+                            {comment.User?.username?.[0]?.toUpperCase()}
+                          </div>
+                        )}
                       </div>
-                      <p className="comment-text">{comment.text}</p>
+                      <div className="comment-content">
+                        <div className="comment-header">
+                          <span className="comment-author">
+                            {comment.User?.username}
+                          </span>
+                          <span className="comment-date">
+                            {formatDate(comment.createdAt)}
+                          </span>
+                        </div>
+                        <p className="comment-text">{comment.text}</p>
+                      </div>
                     </div>
-                  </div>
-                ))}
-                
-                {video.comments.length > 1 && (
+                  ))}
+                </div>
+              )}
+
+              {video.comments && video.comments.length > 1 && (
+                <div className="comments-toggle-above-form">
                   <button
-                    className="show-more-comments"
+                    type="button"
+                    className="show-toggle"
                     onClick={() => setShowAllComments(!showAllComments)}
                   >
                     {showAllComments
                       ? `Show Less`
-                      : `Show ${video.comments.length - 1} More Comment${video.comments.length - 1 > 1 ? 's' : ''}`}
+                      : `Show ${video.comments.length - 1} More Comment${
+                          video.comments.length - 1 > 1 ? "s" : ""
+                        }`}
                   </button>
-                )}
-              </div>
-            )}
+                </div>
+              )}
 
-            <form onSubmit={handleCommentSubmit} className="comment-form">
-              <textarea
-                value={newComment}
-                onChange={(e) => setNewComment(e.target.value)}
-                placeholder={
-                  isAuthenticated
-                    ? "Add a comment..."
-                    : "Please login to add comments"
-                }
-                disabled={!isAuthenticated}
-              />
-              <button
-                type="submit"
-                disabled={
-                  submittingComment || !newComment.trim() || !isAuthenticated
-                }
-                className="comment-submit"
-              >
-                {!isAuthenticated
-                  ? "Login"
-                  : submittingComment
-                  ? "..."
-                  : "Comment"}
-              </button>
-            </form>
-          </div>
-
-          <div className="related-videos-section">
-            <h3>Related Videos</h3>
-            <div className="related-videos-grid">
-              {relatedVideos.map((relatedVideo) => (
-                <VideoCard key={relatedVideo.id} video={relatedVideo} />
-              ))}
+              <form onSubmit={handleCommentSubmit} className="comment-form">
+                <textarea
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                  placeholder={
+                    isAuthenticated
+                      ? "Add a comment..."
+                      : "Please login to add comments"
+                  }
+                  disabled={!isAuthenticated}
+                />
+                <button
+                  type="submit"
+                  disabled={
+                    submittingComment || !newComment.trim() || !isAuthenticated
+                  }
+                  className="comment-submit"
+                >
+                  {!isAuthenticated
+                    ? "Login"
+                    : submittingComment
+                    ? "..."
+                    : "Comment"}
+                </button>
+              </form>
             </div>
+          </div>
+        </div>
+
+        <div className="related-videos-section">
+          <h3>Related Videos</h3>
+          <div className="related-videos-grid">
+            {relatedVideos.map((relatedVideo) => (
+              <VideoCard key={relatedVideo.id} video={relatedVideo} />
+            ))}
           </div>
         </div>
       </div>
@@ -360,4 +394,3 @@ const VideoWatch = () => {
 };
 
 export default React.memo(VideoWatch);
-
